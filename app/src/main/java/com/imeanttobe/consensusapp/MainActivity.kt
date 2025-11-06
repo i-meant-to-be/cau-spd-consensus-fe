@@ -11,18 +11,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.imeanttobe.consensusapp.seal.NativeLib
 import com.imeanttobe.consensusapp.ui.theme.ConsensusTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val messageFromCpp = NativeLib.stringFromJNI()
+
         enableEdgeToEdge()
         setContent {
             ConsensusTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                        name = messageFromCpp,
+                        modifier = Modifier.padding(innerPadding),
                     )
                 }
             }
@@ -31,17 +34,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun Greeting(
+    name: String,
+    modifier: Modifier = Modifier,
+) {
     Text(
-        text = "Hello $name!",
-        modifier = modifier
+        text = name,
+        modifier = modifier,
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ConsensusTheme {
-        Greeting("Android")
-    }
 }
