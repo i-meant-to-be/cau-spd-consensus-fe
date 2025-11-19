@@ -51,6 +51,11 @@ android {
         compose = true
         viewBinding = true
     }
+    packaging {
+        jniLibs {
+            excludes += "lib/**/libz.so"
+        }
+    }
 }
 
 dependencies {
