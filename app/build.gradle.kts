@@ -1,7 +1,12 @@
 plugins {
+    // Default
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    // Hilt
+    alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.dagger.hilt.android)
 }
 
 android {
@@ -46,9 +51,21 @@ android {
         compose = true
         viewBinding = true
     }
+    packaging {
+        jniLibs {
+            excludes += "lib/**/libz.so"
+        }
+    }
 }
 
 dependencies {
+    // Hilt
+    ksp(libs.dagger.hilt.android.compiler)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.dagger.hilt.android)
+
+    // Default
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
