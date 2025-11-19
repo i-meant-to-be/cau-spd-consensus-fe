@@ -29,6 +29,17 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      # Cache NDK
+      - name: Cache NDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/local/lib/android/sdk/ndk
+            ~/.android/build-cache
+          key: ndk-${{ runner.os }}-${{ hashFiles('**/build.gradle.kts', '**/local.properties') }}
+          restore-keys: |
+            ndk-${{ runner.os }}-
+
       # Grant permission for gradlew
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -36,7 +47,7 @@ jobs:
       # Enable KVM for more faster instrumented test
       - name: Enable KVM
         run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm.rules
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger
 
@@ -84,3 +95,4 @@ jobs:
         with:
           name: lint-report
           path: app/build/reports/lint-results-debug.html
+          if-no-files-found: warn
