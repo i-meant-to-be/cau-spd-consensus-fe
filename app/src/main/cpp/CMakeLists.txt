@@ -11,7 +11,8 @@ set(SEAL_BUILD_EXAMPLES OFF CACHE BOOL "Build SEAL examples")
 set(SEAL_USE_ZLIB ON CACHE BOOL "Use ZLIB for compression")
 
 # NDK가 제공하는 Zlib 라이브러리를 찾습니다.
-find_package(ZLIB REQUIRED)
+# find_package(ZLIB REQUIRED)
+find_library(z-lib z)
 
 # 크로스플랫폼 빌드 오류 해결
 set(SEAL___BUILTIN_CLZLL_FOUND_EXITCODE 0 CACHE STRING "Manually set exit code for cross-compiling")
@@ -50,11 +51,11 @@ add_library(consensus_native SHARED
 target_link_libraries(consensus_native
         PUBLIC
         seal          # SEAL 라이브러리
-        ${ZLIB_LIBRARIES} # NDK의 Zlib
+        ${z-lib} # NDK의 Zlib
         ${log-lib}    # NDK의 Log
 )
 
 # 16 KB 호환성 강제 설정
-if(${ANDROID_ABI} STREQUAL "arm64-v8a" OR ${ANDROID_ABI} STREQUAL "x86_64")
+if(ANDROID_ABI STREQUAL "arm64-v8a" OR ANDROID_ABI STREQUAL "x86_64")
     target_link_options(consensus_native PRIVATE "-Wl,-z,max-page-size=16384")
 endif()
