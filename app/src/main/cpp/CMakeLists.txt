@@ -53,3 +53,8 @@ target_link_libraries(consensus_native
         ${ZLIB_LIBRARIES} # NDK의 Zlib
         ${log-lib}    # NDK의 Log
 )
+
+# 16 KB 호환성 강제 설정
+if(${ANDROID_ABI} STREQUAL "arm64-v8a" OR ${ANDROID_ABI} STREQUAL "x86_64")
+    target_link_options(consensus_native PRIVATE "-Wl,-z,max-page-size=16384")
+endif()
