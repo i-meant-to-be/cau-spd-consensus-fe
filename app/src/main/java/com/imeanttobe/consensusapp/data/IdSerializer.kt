@@ -1,10 +1,10 @@
 package com.imeanttobe.consensusapp.data
 
 import android.content.Context
+import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import androidx.datastore.dataStore
-import com.google.protobuf.InvalidProtocolBufferException
 import com.imeanttobe.consensusapp.Id
 import java.io.InputStream
 import java.io.OutputStream
@@ -19,7 +19,7 @@ object IdSerializer : Serializer<Id> {
         try {
             return Id.parseFrom(input)
         } catch (exception: Exception) {
-            throw InvalidProtocolBufferException("Cannot read proto.", exception)
+            throw CorruptionException("Cannot read proto.", exception)
         }
     }
 
