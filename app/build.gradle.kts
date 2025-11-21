@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     // Default
     alias(libs.plugins.android.application)
@@ -7,6 +9,9 @@ plugins {
     // Hilt
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.dagger.hilt.android)
+
+    // Proto Datastore
+    alias(libs.plugins.google.protobuf)
 }
 
 android {
@@ -44,9 +49,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
     buildFeatures {
         compose = true
         viewBinding = true
@@ -58,12 +60,41 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.33.1"
+    }
+
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite")
+                }
+                create("kotlin")
+            }
+        }
+    }
+}
+
 dependencies {
     // Hilt
     ksp(libs.dagger.hilt.android.compiler)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.dagger.hilt.android)
+    androidTestImplementation(libs.dagger.hilt.android.testing)
+
+    // Proto Datastore
+    implementation(libs.datastore.core)
+    implementation(libs.datastore.preferences)
+    implementation(libs.protobuf.kotlin.lite)
 
     // Default
     implementation(libs.androidx.core.ktx)
