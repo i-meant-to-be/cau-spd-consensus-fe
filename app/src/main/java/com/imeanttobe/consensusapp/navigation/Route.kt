@@ -1,5 +1,31 @@
 package com.imeanttobe.consensusapp.navigation
 
+import kotlinx.serialization.Serializable
+
+sealed interface Route {
+    @Serializable
+    data object HomeRoute : Route
+
+    @Serializable
+    data object SplashScreen : Route
+
+    @Serializable
+    data object CreatePollScreen : Route
+
+    @Serializable
+    data class HostDashboardScreen(val pollId: String) : Route
+
+    @Serializable
+    data class VoteScreen(val pollId: String) : Route
+
+    @Serializable
+    data class WaitingScreen(val pollId: String) : Route
+
+    @Serializable
+    data class ResultScreen(val pollId: String) : Route
+}
+
+/*
 sealed class Route(
     val name: String,
     val path: String,
@@ -47,3 +73,4 @@ sealed class Route(
         fun createRoute(pollId: String): String = this.path.replace("{pollId}", pollId)
     }
 }
+ */
