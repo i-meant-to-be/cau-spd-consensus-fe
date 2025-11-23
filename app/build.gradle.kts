@@ -1,10 +1,11 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
-private fun parseBoolean(value: String?): Boolean {
+private fun parseBoolean(value: String?, defaultValue: Boolean = false): Boolean {
     return when (value?.lowercase()) {
         "true" -> true
         "false" -> false
+        null -> defaultValue
         else -> throw IllegalArgumentException("Invalid boolean value: $value")
     }
 }
@@ -54,7 +55,7 @@ android {
         }
 
         // Set the values from local.properties
-        val isDevModeEnabled = parseBoolean(localProperties.getProperty("config.isDevModeEnabled"))
+        val isDevModeEnabled = parseBoolean(localProperties.getProperty("config.isDevModeEnabled"), false)
 
         // Set the buildConfigField
         buildConfigField("Boolean", "IS_DEV_MODE_ENABLED", isDevModeEnabled.toString())
