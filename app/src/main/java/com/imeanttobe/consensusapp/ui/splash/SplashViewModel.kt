@@ -27,12 +27,20 @@ class SplashViewModel @Inject constructor(
            _splashState.value = UiState.Loading
 
            try {
-               if (idRepo.isExist()) {
-                   _splashState.value = UiState.Success(Unit)
-               } else {
-                   val id = UUID.randomUUID().toString()
-                   idRepo.setId(id)
-                   _splashState.value = UiState.Success(Unit)
+               val isExist = idRepo.isExist()
+
+               if (isExist.isSuccess) {
+                   if (isExist.getOrDefault(false)) {
+                       _splashState.value = UiState.Success(Unit)
+                   } else {
+                       val id = UUID.randomUUID().toString()
+                       val result = idRepo.setId(id)
+                       if (result.isSuccess) {
+                           _splashState.value = UiState.Success(Unit)
+                       } else {
+                           _splashState.value = UiState.Failure(result.exceptionOrNull()?.message ?: "Unknown error")
+                       }
+                   }
                }
            } catch (e: Exception) {
                _splashState.value = UiState.Failure(e.message ?: "Unknown error")

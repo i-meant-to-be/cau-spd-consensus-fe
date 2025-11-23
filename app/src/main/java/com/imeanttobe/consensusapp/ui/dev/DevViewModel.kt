@@ -20,7 +20,12 @@ class DevViewModel @Inject constructor(private val idRepo: IdRepo) : ViewModel()
 
     private fun loadId() {
         viewModelScope.launch {
-            _userId.value = idRepo.getId()
+            val id = idRepo.getId()
+            if (id.isSuccess) {
+                _userId.value = id.getOrDefault("FAILED")
+            } else {
+                _userId.value = "FAILED"
+            }
         }
     }
 
