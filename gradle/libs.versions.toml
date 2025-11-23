@@ -22,7 +22,7 @@ protobuf = "0.9.5"
 datastore = "1.2.0"
 
 # Global
-serialization = "1.6.3"
+serialization = "1.9.0"
 
 [libraries]
 # Default
