@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.imeanttobe.consensusapp.navigation.Route
+import com.imeanttobe.consensusapp.BuildConfig
 import com.imeanttobe.consensusapp.ui.dev.DevScreen
 import com.imeanttobe.consensusapp.ui.home.HomeScreen
 import com.imeanttobe.consensusapp.ui.splash.SplashScreen
@@ -28,8 +29,10 @@ fun ConsensusNavGraph() {
             HomeScreen()
         }
 
-        composable<Route.DevRoute> {
-            DevScreen()
+        if (BuildConfig.IS_DEV_MODE_ENABLED) {
+            composable<Route.DevRoute> {
+                DevScreen()
+            }
         }
 
         composable<Route.VoteScreen>(

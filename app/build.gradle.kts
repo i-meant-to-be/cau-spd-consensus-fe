@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     // Default
@@ -29,8 +30,26 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Local properties is set here
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+
+        // If local.properties exists, load it
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use {
+                localProperties.load(it)
+            }
+        } else {
+            println("local.properties file not found")
+        }
+
+        // Set the values from local.properties
+        val isDevModeEnabled = localProperties.getProperty("config.isDevModeEnabled")?.toBoolean() ?: false
+
+        // Set the buildConfigField
+        buildConfigField("Boolean", "IS_DEV_MODE_ENABLED", isDevModeEnabled.toString())
     }
 
     buildTypes {
@@ -48,14 +67,18 @@ android {
             version = "4.1.2"
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     buildFeatures {
         compose = true
         viewBinding = true
+        buildConfig = true
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1,LICENSE.md,LICENSE-notice.md}"
