@@ -20,6 +20,7 @@ class IdRepoImpl @Inject constructor(
     }
 
     override suspend fun isExist(): Boolean {
-        return idDataStore.data.first().id.isNotEmpty() && idDataStore.data.first().id.isNotBlank()
+        val id = idDataStore.data.first().id
+        return id.isNotEmpty() && id.isNotBlank()
     }
 }
