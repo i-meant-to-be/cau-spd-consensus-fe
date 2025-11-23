@@ -10,6 +10,9 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.dagger.hilt.android)
 
+    // Global
+    alias(libs.plugins.kotlin.serialization)
+
     // Proto Datastore
     alias(libs.plugins.google.protobuf)
 }
@@ -90,6 +93,9 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.dagger.hilt.android)
     androidTestImplementation(libs.dagger.hilt.android.testing)
+
+    // Global
+    implementation(libs.kotlinx.serialization.json)
 
     // Proto Datastore
     implementation(libs.datastore.core)

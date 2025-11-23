@@ -11,4 +11,7 @@ plugins {
 
     // Proto Datastore
     alias(libs.plugins.google.protobuf) apply false
+    
+    // Global
+    alias(libs.plugins.kotlin.serialization) apply false
 }

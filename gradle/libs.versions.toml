@@ -21,6 +21,9 @@ protobufKotlin = "4.33.1"
 protobuf = "0.9.5"
 datastore = "1.2.0"
 
+# Global
+serialization = "1.9.0"
+
 [libraries]
 # Default
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -50,6 +53,9 @@ datastore-core = { group = "androidx.datastore", name = "datastore-core", versio
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobufKotlin" }
 
+# Global
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
+
 [plugins]
 # Default
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -62,3 +68,6 @@ dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hi
 
 # Proto Datastore
 google-protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
+
+# Global
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
