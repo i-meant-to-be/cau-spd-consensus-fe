@@ -35,15 +35,16 @@ class SplashViewModel @Inject constructor(
                    } else {
                        val id = UUID.randomUUID().toString()
                        val result = idRepo.setId(id)
+
                        if (result.isSuccess) {
                            _splashState.value = UiState.Success(Unit)
                        } else {
-                           _splashState.value = UiState.Failure(result.exceptionOrNull()?.message ?: "Unknown error")
+                           _splashState.value = UiState.Failure(result.exceptionOrNull()?.message ?: "새로 생성된 ID를 쓰던 중 오류 발생")
                        }
                    }
                }
            } catch (e: Exception) {
-               _splashState.value = UiState.Failure(e.message ?: "Unknown error")
+               _splashState.value = UiState.Failure(e.message ?: "ID를 설정하는 중 오류 발생")
            }
        }
     }
