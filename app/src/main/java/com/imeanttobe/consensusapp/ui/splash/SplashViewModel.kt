@@ -18,8 +18,15 @@ class SplashViewModel @Inject constructor(
     private val _splashState = mutableStateOf<UiState<Unit>>(UiState.Idle)
     val splashState: State<UiState<Unit>> = _splashState
 
+    private val _dialogState = mutableStateOf<Boolean>(false)
+    val dialogState: State<Boolean> = _dialogState
+
     init {
         checkAndGenerateId()
+    }
+
+    fun setDialogState(state: Boolean) {
+        _dialogState.value = state
     }
 
     fun checkAndGenerateId() {
