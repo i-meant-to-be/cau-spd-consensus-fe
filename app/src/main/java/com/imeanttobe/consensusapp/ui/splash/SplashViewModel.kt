@@ -49,6 +49,8 @@ class SplashViewModel @Inject constructor(
                            _splashState.value = UiState.Failure(result.exceptionOrNull()?.message ?: "새로 생성된 ID를 쓰던 중 오류 발생")
                        }
                    }
+               } else {
+                   _splashState.value = UiState.Failure(isExist.exceptionOrNull()?.message ?: "ID를 확인하는 중 오류 발생")
                }
            } catch (e: Exception) {
                _splashState.value = UiState.Failure(e.message ?: "ID를 설정하는 중 오류 발생")
