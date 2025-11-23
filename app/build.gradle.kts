@@ -57,6 +57,10 @@ android {
         viewBinding = true
     }
     packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1,LICENSE.md,LICENSE-notice.md}"
+        }
+
         jniLibs {
             excludes += "lib/**/libz.so"
         }
@@ -96,6 +100,8 @@ dependencies {
 
     // Global
     implementation(libs.kotlinx.serialization.json)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.mockk.agent)
 
     // Proto Datastore
     implementation(libs.datastore.core)

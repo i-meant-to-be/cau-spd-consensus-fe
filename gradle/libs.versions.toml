@@ -24,6 +24,7 @@ datastore = "1.2.0"
 
 # Global
 serialization = "1.9.0"
+mockk = "1.14.6"
 
 [libraries]
 # Default
@@ -56,6 +57,8 @@ protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-
 
 # Global
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
+mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
+mockk-agent = { group = "io.mockk", name = "mockk-agent", version.ref = "mockk" }
 
 [plugins]
 # Default
