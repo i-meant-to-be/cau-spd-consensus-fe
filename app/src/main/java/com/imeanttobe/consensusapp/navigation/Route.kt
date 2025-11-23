@@ -13,6 +13,9 @@ sealed interface Route {
     data object CreatePollScreen : Route
 
     @Serializable
+    data object DevRoute : Route
+
+    @Serializable
     data class HostDashboardScreen(val pollId: String) : Route
 
     @Serializable

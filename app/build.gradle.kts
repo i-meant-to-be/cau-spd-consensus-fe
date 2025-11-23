@@ -1,4 +1,14 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
+private fun parseBoolean(value: String?, defaultValue: Boolean = false): Boolean {
+    return when (value?.lowercase()) {
+        "true" -> true
+        "false" -> false
+        null -> defaultValue
+        else -> throw IllegalArgumentException("Invalid boolean value: $value")
+    }
+}
 
 plugins {
     // Default
@@ -29,8 +39,26 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Local properties is set here
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+
+        // If local.properties exists, load it
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use {
+                localProperties.load(it)
+            }
+        } else {
+            println("local.properties file not found")
+        }
+
+        // Set the values from local.properties
+        val isDevModeEnabled = parseBoolean(localProperties.getProperty("config.isDevModeEnabled"), false)
+
+        // Set the buildConfigField
+        buildConfigField("Boolean", "IS_DEV_MODE_ENABLED", isDevModeEnabled.toString())
     }
 
     buildTypes {
@@ -48,15 +76,23 @@ android {
             version = "4.1.2"
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     buildFeatures {
         compose = true
         viewBinding = true
+        buildConfig = true
     }
+
     packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1,LICENSE.md,LICENSE-notice.md}"
+        }
+
         jniLibs {
             excludes += "lib/**/libz.so"
         }
@@ -96,6 +132,9 @@ dependencies {
 
     // Global
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.material.icons.extended)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.mockk.agent)
 
     // Proto Datastore
     implementation(libs.datastore.core)

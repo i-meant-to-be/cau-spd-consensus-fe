@@ -1,9 +1,88 @@
 package com.imeanttobe.consensusapp.ui.splash
 
+import android.app.Activity
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularWavyProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.imeanttobe.consensusapp.core.UiState
+import com.imeanttobe.consensusapp.core.findActivity
+import com.imeanttobe.consensusapp.navigation.Route
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun SplashScreen() {
-    Text("Splash Screen")
+fun SplashScreen(
+    navController: NavHostController,
+    viewModel: SplashViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = viewModel.splashState.value) {
+        if (viewModel.splashState.value is UiState.Success) {
+            navController.navigate(Route.DevRoute) {
+                popUpTo(Route.SplashScreen) {
+                    inclusive = true
+                }
+            }
+        } else if (viewModel.splashState.value is UiState.Failure) {
+            viewModel.setDialogState(true)
+        }
+    }
+
+    Scaffold { innerPadding ->
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            // Title
+            Text(
+                text = "Consensus",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            // Loading indicator
+            CircularWavyProgressIndicator()
+        }
+    }
+
+    if (viewModel.dialogState.value) {
+        AlertDialog(
+            onDismissRequest = {  },
+            icon = { Icon(imageVector = Icons.Outlined.Warning, contentDescription = null) },
+            title = { Text("오류 발생") },
+            text = { Text("초기화 중 오류가 발생하여 앱을 종료합니다. 다시 실행해주세요.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        context.findActivity()?.finish()
+                    }
+                ) {
+                    Text(text = "종료")
+                }
+            }
+        )
+    }
 }
