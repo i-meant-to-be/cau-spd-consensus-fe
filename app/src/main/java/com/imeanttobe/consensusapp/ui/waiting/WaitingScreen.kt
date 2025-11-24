@@ -1,4 +1,4 @@
-package com.imeanttobe.consensusapp.ui.vote
+package com.imeanttobe.consensusapp.ui.waiting
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -7,10 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun VoteScreen(pollId: String) {
+fun WaitingScreen(pollId: String) {
     Scaffold { innerPadding ->
         Text(
-            text = "Vote Screen: $pollId",
+            text = "Waiting Screen: $pollId",
             modifier = Modifier.padding(innerPadding),
         )
     }
