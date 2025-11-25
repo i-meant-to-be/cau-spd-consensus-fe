@@ -36,7 +36,7 @@ fun ConsensusNavGraph() {
         }
 
         composable<Route.HomeRoute> {
-            HomeScreen()
+            HomeScreen(navController = navController)
         }
 
         composable<Route.CreatePollScreen> {
