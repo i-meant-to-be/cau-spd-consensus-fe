@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.imeanttobe.consensusapp.navigation.Route
 
@@ -34,6 +35,8 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
+    val recentPollItems = viewModel.recentPollItems.collectAsStateWithLifecycle()
+
     Scaffold(modifier = modifier) { innerPadding ->
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -90,7 +93,7 @@ fun HomeScreen(
             )
             LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
                 // Temp code, will be going to be developed later
-                itemsIndexed(items = viewModel.recentPollItems) { index, item ->
+                itemsIndexed(items = recentPollItems.value) { index, item ->
                     Text(text = "인덱스 $index, 투표 $item")
                 }
             }
