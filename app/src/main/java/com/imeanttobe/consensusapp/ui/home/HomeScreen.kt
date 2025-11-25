@@ -1,17 +1,99 @@
 package com.imeanttobe.consensusapp.ui.home
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.HowToVote
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.imeanttobe.consensusapp.navigation.Route
 
 @Composable
-fun HomeScreen() {
-    Scaffold { innerPadding ->
-        Text(
-            text = "Home Screen ",
-            modifier = Modifier.padding(innerPadding),
-        )
+fun HomeScreen(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel(),
+) {
+    Scaffold(modifier = modifier) { innerPadding ->
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier =
+                Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .padding(16.dp),
+        ) {
+            // Title
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
+            ) {
+                Text(
+                    text = "Consensus",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.displayMedium,
+                )
+                Text(
+                    text = "FHE 기반 비밀 보장 투표 서비스",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            // Main buttons
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
+            ) {
+                Button(
+                    onClick = { navController.navigate(Route.CreatePollScreen) },
+                ) {
+                    Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "투표 생성")
+                }
+                Text(
+                    text = "버튼을 터치하여 투표를 개최해보세요.",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            // Recent contents
+            Text(
+                text = "최근 투표",
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.titleLarge,
+            )
+            LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                // Temp code, will be going to be developed later
+                itemsIndexed(items = viewModel.recentPollItems) { index, item ->
+                    Text(text = "인덱스 $index, 투표 $item")
+                }
+            }
+        }
     }
 }
