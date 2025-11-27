@@ -133,6 +133,7 @@ dependencies {
     // Global
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.material.icons.extended)
+    implementation(libs.kotlinx.immutable.collections)
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.mockk.agent)
 
