@@ -56,7 +56,9 @@ fun CreatePollScreen(
     val handleSubmit: () -> Unit = { viewModel.submit() }
     val handleOpenDialog: () -> Unit = { viewModel.setDialogState(true) }
     val handleDialogConfirm: () -> Unit = {
-        viewModel.appendOption(newOption.value)
+        if (newOption.value.isNotBlank() && !options.value.contains(newOption.value)) {
+            viewModel.appendOption(newOption.value)
+        }
         viewModel.setDialogState(false)
         viewModel.setNewOption("")
     }

@@ -52,7 +52,11 @@ class CreatePollViewModel @Inject constructor() : ViewModel() {
 
     fun appendOption(option: String) {
         _options.update { currentList ->
-            currentList.add(option)
+            if (currentList.size < 3 && !currentList.contains(option)) {
+                currentList.add(option)
+            } else {
+                currentList
+            }
         }
     }
 
