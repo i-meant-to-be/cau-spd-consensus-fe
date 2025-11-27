@@ -23,7 +23,7 @@ fun OptionChip(
         trailingIcon = {
             Icon(
                 imageVector = Icons.Outlined.Close,
-                contentDescription = "Localized description",
+                contentDescription = null,
                 modifier = Modifier.size(InputChipDefaults.AvatarSize)
             )
         },
