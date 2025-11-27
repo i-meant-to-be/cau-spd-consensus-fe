@@ -129,13 +129,11 @@ fun CreatePollScreen(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    if (options.value.isNotEmpty()) {
-                        for (option in options.value) {
-                            OptionChip(
-                                option = option,
-                                onDelete = { viewModel.removeOption(option) }
-                            )
-                        }
+                    for (option in options.value) {
+                        OptionChip(
+                            option = option,
+                            onDelete = { viewModel.removeOption(option) }
+                        )
                     }
                     Button(
                         enabled = isNewOptionButtonEnabled,
