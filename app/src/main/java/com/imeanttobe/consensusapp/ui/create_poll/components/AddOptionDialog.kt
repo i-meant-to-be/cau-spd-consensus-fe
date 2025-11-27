@@ -18,6 +18,8 @@ fun AddOptionDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val isConfirmButtonEnabled = newOption.isNotEmpty()
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = "새 후보 추가") },
@@ -41,7 +43,10 @@ fun AddOptionDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            TextButton(
+                enabled = isConfirmButtonEnabled,
+                onClick = onConfirm
+            ) {
                 Text(text = "추가")
             }
         },
