@@ -46,7 +46,7 @@ fun AddOptionDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onConfirm) {
+            TextButton(onClick = onDismiss) {
                 Text(text = "취소")
             }
         }
