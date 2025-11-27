@@ -40,7 +40,7 @@ fun ConsensusNavGraph() {
         }
 
         composable<Route.CreatePollScreen> {
-            CreatePollScreen()
+            CreatePollScreen(navController = navController)
         }
 
         composable<Route.VoteScreen>(
