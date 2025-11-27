@@ -58,7 +58,11 @@ class CreatePollViewModel @Inject constructor() : ViewModel() {
 
     fun removeOption(index: Int) {
         _options.update { currentList ->
-            currentList.removeAt(index)
+            if (index in currentList.indices) {
+                currentList.removeAt(index)
+            } else {
+                currentList
+            }
         }
     }
 
