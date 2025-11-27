@@ -23,7 +23,7 @@ fun OptionChip(
         trailingIcon = {
             Icon(
                 imageVector = Icons.Outlined.Close,
-                contentDescription = null,
+                contentDescription = "Delete Option",
                 modifier = Modifier.size(InputChipDefaults.AvatarSize)
             )
         },

@@ -18,7 +18,10 @@ fun CreatePollScreenTopBar(
         title = { Text(text = "투표 생성") },
         navigationIcon = {
             IconButton(onClick = onBackClicked) {
-                Icon(imageVector = Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null)
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                    contentDescription = "Create Poll"
+                )
             }
         },
     )

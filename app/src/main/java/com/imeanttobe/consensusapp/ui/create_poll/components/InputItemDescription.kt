@@ -34,7 +34,7 @@ fun InputItemDescription(
             Icon(
                 imageVector = icon,
                 tint = MaterialTheme.colorScheme.primary,
-                contentDescription = null
+                contentDescription = "Input Icon"
             )
             Text(
                 text = title,

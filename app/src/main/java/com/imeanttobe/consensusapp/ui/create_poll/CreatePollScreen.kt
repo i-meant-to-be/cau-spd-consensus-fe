@@ -145,7 +145,7 @@ fun CreatePollScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Add,
-                            contentDescription = null
+                            contentDescription = "Add Option"
                         )
                     }
                 }
