@@ -1,6 +1,5 @@
 package com.imeanttobe.consensusapp.ui.create_poll
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.imeanttobe.consensusapp.core.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
