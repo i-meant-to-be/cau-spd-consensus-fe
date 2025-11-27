@@ -54,9 +54,7 @@ fun CreatePollScreen(
     val handleSubmit: () -> Unit = { viewModel.submit() }
     val handleOpenDialog: () -> Unit = { viewModel.setDialogState(true) }
     val handleDialogConfirm: () -> Unit = {
-        if (newOption.value.isNotBlank() && !options.value.contains(newOption.value)) {
-            viewModel.appendOption(newOption.value)
-        }
+        viewModel.appendOption(newOption.value)
         viewModel.setDialogState(false)
         viewModel.setNewOption("")
     }
@@ -66,10 +64,10 @@ fun CreatePollScreen(
     }
 
     val isSubmitButtonEnabled = title.value.isNotEmpty()
-            && options.value.size >= 2
-            && options.value.size <= 3
+            && options.value.size >= MIN_OPTIONS
+            && options.value.size <= MAX_OPTIONS
             && uiState.value != UiState.Loading
-    val isNewOptionButtonEnabled = options.value.size < 3
+    val isNewOptionButtonEnabled = options.value.size < MAX_OPTIONS
 
     Scaffold(
         topBar = { CreatePollScreenTopBar(onBackClicked = handleBackClick) },

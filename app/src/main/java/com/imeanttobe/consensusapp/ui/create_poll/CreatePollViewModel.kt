@@ -12,6 +12,8 @@ import javax.inject.Inject
 
 const val MAX_PARTICIPANTS = 10
 const val MIN_PARTICIPANTS = 3
+const val MAX_OPTIONS = 3
+const val MIN_OPTIONS = 2
 
 @HiltViewModel
 class CreatePollViewModel @Inject constructor() : ViewModel() {
@@ -50,8 +52,12 @@ class CreatePollViewModel @Inject constructor() : ViewModel() {
     }
 
     fun appendOption(option: String) {
+        if (option.isBlank()) {
+            return
+        }
+
         _options.update { currentList ->
-            if (currentList.size < 3 && !currentList.contains(option)) {
+            if (currentList.size < MAX_OPTIONS && !currentList.contains(option)) {
                 currentList.add(option)
             } else {
                 currentList
