@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
-const val MAX_PARTICIPANTS = 10;
-const val MIN_PARTICIPANTS = 3;
+const val MAX_PARTICIPANTS = 10
+const val MIN_PARTICIPANTS = 3
 
 @HiltViewModel
 class CreatePollViewModel @Inject constructor() : ViewModel() {
@@ -25,7 +25,7 @@ class CreatePollViewModel @Inject constructor() : ViewModel() {
     private val _newOption = MutableStateFlow<String>("")
     val newOption: StateFlow<String> = _newOption
 
-    private val _numParticipants = MutableStateFlow<Int>(3)
+    private val _numParticipants = MutableStateFlow<Int>(MIN_PARTICIPANTS)
     val numParticipants: StateFlow<Int> = _numParticipants
 
     private val _uiState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
@@ -47,7 +47,7 @@ class CreatePollViewModel @Inject constructor() : ViewModel() {
     }
 
     fun setNumParticipants(numParticipants: Int) {
-        _numParticipants.value = numParticipants
+        _numParticipants.value = numParticipants.coerceIn(MIN_PARTICIPANTS, MAX_PARTICIPANTS)
     }
 
     fun appendOption(option: String) {
@@ -73,6 +73,6 @@ class CreatePollViewModel @Inject constructor() : ViewModel() {
     }
 
     fun submit() {
-
+        // TODO: Submit poll to server
     }
 }
