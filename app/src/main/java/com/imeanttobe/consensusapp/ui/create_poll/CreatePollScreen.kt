@@ -3,6 +3,7 @@ package com.imeanttobe.consensusapp.ui.create_poll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,10 +26,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.imeanttobe.consensusapp.core.Constants.MAX_OPTIONS
+import com.imeanttobe.consensusapp.core.Constants.MAX_PARTICIPANTS
+import com.imeanttobe.consensusapp.core.Constants.MAX_TITLE_LENGTH
+import com.imeanttobe.consensusapp.core.Constants.MIN_OPTIONS
+import com.imeanttobe.consensusapp.core.Constants.MIN_PARTICIPANTS
 import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.ui.create_poll.components.AddOptionDialog
 import com.imeanttobe.consensusapp.ui.create_poll.components.CreatePollScreenTopBar
@@ -68,6 +75,9 @@ fun CreatePollScreen(
             && options.value.size <= MAX_OPTIONS
             && uiState.value != UiState.Loading
     val isNewOptionButtonEnabled = options.value.size < MAX_OPTIONS
+    val textLengthColor =
+        if (title.value.length < MAX_TITLE_LENGTH) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.error
 
     Scaffold(
         topBar = { CreatePollScreenTopBar(onBackClicked = handleBackClick) },
@@ -93,7 +103,14 @@ fun CreatePollScreen(
                     singleLine = true,
                     maxLines = 1,
                     placeholder = { Text(text = "2025년 반장 선거")},
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp)
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                )
+                Text(
+                    text = "${title.value.length} / $MAX_TITLE_LENGTH",
+                    color = textLengthColor,
+                    textAlign = TextAlign.End,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp).padding(bottom = 32.dp)
                 )
 
                 // Participants
@@ -107,7 +124,6 @@ fun CreatePollScreen(
                     value = numParticipants.value.toFloat(),
                     onValueChange = handleSliderChange,
                     valueRange = MIN_PARTICIPANTS.toFloat()..MAX_PARTICIPANTS.toFloat(),
-                    steps = MAX_PARTICIPANTS - MIN_PARTICIPANTS - 1,
                     modifier = Modifier.padding(horizontal = 4.dp)
                 )
                 Row(
@@ -126,7 +142,7 @@ fun CreatePollScreen(
                     description = "후보를 입력해주세요. 최소 2개, 최대 3개까지 가능해요.",
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                Row(
+                FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     for (option in options.value) {

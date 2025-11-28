@@ -3,13 +3,18 @@ package com.imeanttobe.consensusapp.ui.create_poll.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.imeanttobe.consensusapp.core.Constants.MAX_OPTION_LENGTH
+import com.imeanttobe.consensusapp.core.Constants.MAX_TITLE_LENGTH
 
 @Composable
 fun AddOptionDialog(
@@ -39,6 +44,13 @@ fun AddOptionDialog(
                     maxLines = 1,
                     placeholder = { Text(text = "홍길동") },
                     modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    text = "${newOption.length} / $MAX_OPTION_LENGTH",
+                    color = if (newOption.length < MAX_OPTION_LENGTH) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.End,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                 )
             }
         },
