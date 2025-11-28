@@ -3,6 +3,7 @@ package com.imeanttobe.consensusapp.ui.create_poll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -111,7 +112,6 @@ fun CreatePollScreen(
                     value = numParticipants.value.toFloat(),
                     onValueChange = handleSliderChange,
                     valueRange = MIN_PARTICIPANTS.toFloat()..MAX_PARTICIPANTS.toFloat(),
-                    steps = MAX_PARTICIPANTS - MIN_PARTICIPANTS - 1,
                     modifier = Modifier.padding(horizontal = 4.dp)
                 )
                 Row(
@@ -130,7 +130,7 @@ fun CreatePollScreen(
                     description = "후보를 입력해주세요. 최소 2개, 최대 3개까지 가능해요.",
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                Row(
+                FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     for (option in options.value) {
