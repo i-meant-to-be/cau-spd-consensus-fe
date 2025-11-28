@@ -26,12 +26,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.imeanttobe.consensusapp.core.Constants.MAX_OPTIONS
 import com.imeanttobe.consensusapp.core.Constants.MAX_PARTICIPANTS
+import com.imeanttobe.consensusapp.core.Constants.MAX_TITLE_LENGTH
 import com.imeanttobe.consensusapp.core.Constants.MIN_OPTIONS
 import com.imeanttobe.consensusapp.core.Constants.MIN_PARTICIPANTS
 import com.imeanttobe.consensusapp.core.UiState
@@ -73,6 +75,9 @@ fun CreatePollScreen(
             && options.value.size <= MAX_OPTIONS
             && uiState.value != UiState.Loading
     val isNewOptionButtonEnabled = options.value.size < MAX_OPTIONS
+    val textLengthColor =
+        if (newOption.value.length < MAX_TITLE_LENGTH) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.error
 
     Scaffold(
         topBar = { CreatePollScreenTopBar(onBackClicked = handleBackClick) },
@@ -98,7 +103,14 @@ fun CreatePollScreen(
                     singleLine = true,
                     maxLines = 1,
                     placeholder = { Text(text = "2025년 반장 선거")},
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp)
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                )
+                Text(
+                    text = "${title.value.length} / $MAX_TITLE_LENGTH",
+                    color = textLengthColor,
+                    textAlign = TextAlign.End,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp).padding(bottom = 32.dp)
                 )
 
                 // Participants
