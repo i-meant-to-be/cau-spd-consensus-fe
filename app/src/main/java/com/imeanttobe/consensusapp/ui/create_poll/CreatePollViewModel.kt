@@ -1,6 +1,11 @@
 package com.imeanttobe.consensusapp.ui.create_poll
 
 import androidx.lifecycle.ViewModel
+import com.imeanttobe.consensusapp.core.Constants.MAX_OPTIONS
+import com.imeanttobe.consensusapp.core.Constants.MAX_OPTION_LENGTH
+import com.imeanttobe.consensusapp.core.Constants.MAX_PARTICIPANTS
+import com.imeanttobe.consensusapp.core.Constants.MAX_TITLE_LENGTH
+import com.imeanttobe.consensusapp.core.Constants.MIN_PARTICIPANTS
 import com.imeanttobe.consensusapp.core.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.PersistentList
@@ -9,11 +14,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
-
-const val MAX_PARTICIPANTS = 10
-const val MIN_PARTICIPANTS = 3
-const val MAX_OPTIONS = 3
-const val MIN_OPTIONS = 2
 
 @HiltViewModel
 class CreatePollViewModel @Inject constructor() : ViewModel() {

@@ -29,6 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.imeanttobe.consensusapp.core.Constants.MAX_OPTIONS
+import com.imeanttobe.consensusapp.core.Constants.MAX_PARTICIPANTS
+import com.imeanttobe.consensusapp.core.Constants.MIN_OPTIONS
+import com.imeanttobe.consensusapp.core.Constants.MIN_PARTICIPANTS
 import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.ui.create_poll.components.AddOptionDialog
 import com.imeanttobe.consensusapp.ui.create_poll.components.CreatePollScreenTopBar
