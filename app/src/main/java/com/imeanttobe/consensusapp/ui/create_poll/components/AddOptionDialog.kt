@@ -47,7 +47,7 @@ fun AddOptionDialog(
                 )
                 Text(
                     text = "${newOption.length} / $MAX_OPTION_LENGTH",
-                    color = if (newOption.length < MAX_TITLE_LENGTH) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                    color = if (newOption.length < MAX_OPTION_LENGTH) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.End,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)

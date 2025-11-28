@@ -76,7 +76,7 @@ fun CreatePollScreen(
             && uiState.value != UiState.Loading
     val isNewOptionButtonEnabled = options.value.size < MAX_OPTIONS
     val textLengthColor =
-        if (newOption.value.length < MAX_TITLE_LENGTH) MaterialTheme.colorScheme.primary
+        if (title.value.length < MAX_TITLE_LENGTH) MaterialTheme.colorScheme.primary
         else MaterialTheme.colorScheme.error
 
     Scaffold(
