@@ -40,11 +40,19 @@ class CreatePollViewModel @Inject constructor() : ViewModel() {
     }
 
     fun setNewOption(newOption: String) {
-        _newOption.value = newOption
+        if (newOption.length <= MAX_OPTION_LENGTH) {
+            _newOption.value = newOption
+        } else {
+            _newOption.value = newOption.take(MAX_OPTION_LENGTH)
+        }
     }
 
     fun setTitle(title: String) {
-        _title.value = title
+        if (title.length <= MAX_TITLE_LENGTH) {
+            _title.value = title
+        } else {
+            _title.value = title.take(MAX_TITLE_LENGTH)
+        }
     }
 
     fun setNumParticipants(numParticipants: Int) {
