@@ -20,7 +20,7 @@ object NetworkModule {
     fun provideOkHttpClient(
         authInterceptor: AuthInterceptor
     ): OkHttpClient {
-        val isHttpLoggingEnabled = true
+        val isHttpLoggingEnabled = BuildConfig.IS_HTTP_LOGGING_ENABLED
 
         return OkHttpClient.Builder()
             .apply {
