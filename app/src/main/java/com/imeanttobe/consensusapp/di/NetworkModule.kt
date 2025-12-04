@@ -16,7 +16,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     @Provides
-//    @Singleton
+    @Singleton
     fun provideOkHttpClient(
         authInterceptor: AuthInterceptor
     ): OkHttpClient {
