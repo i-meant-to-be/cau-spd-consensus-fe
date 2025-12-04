@@ -56,9 +56,11 @@ android {
 
         // Set the values from local.properties
         val isDevModeEnabled = parseBoolean(localProperties.getProperty("config.isDevModeEnabled"), false)
+        val apiBaseUrl = localProperties.getProperty("api.baseUrl")
 
         // Set the buildConfigField
         buildConfigField("Boolean", "IS_DEV_MODE_ENABLED", isDevModeEnabled.toString())
+        buildConfigField("String", "API_BASE_URL", apiBaseUrl)
     }
 
     buildTypes {
