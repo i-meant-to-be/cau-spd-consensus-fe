@@ -63,6 +63,7 @@ android {
         buildConfigField("Boolean", "IS_DEV_MODE_ENABLED", isDevModeEnabled.toString())
         buildConfigField("Boolean", "IS_HTTP_LOGGING_ENABLED", isHttpLoggingEnabled.toString())
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+            ?: throw GradleException("API_BASE_URL is not set in local.properties")
     }
 
     buildTypes {
