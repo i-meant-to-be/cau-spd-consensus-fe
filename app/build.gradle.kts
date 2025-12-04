@@ -60,7 +60,7 @@ android {
 
         // Set the buildConfigField
         buildConfigField("Boolean", "IS_DEV_MODE_ENABLED", isDevModeEnabled.toString())
-        buildConfigField("String", "API_BASE_URL", apiBaseUrl)
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 
     buildTypes {
