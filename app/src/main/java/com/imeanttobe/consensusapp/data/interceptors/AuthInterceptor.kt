@@ -22,7 +22,7 @@ class AuthInterceptor @Inject constructor(
             // 1. If it's public, remove the marker header so the server doesn't see it
             // 2. Do NOT add X-User-Id
             newRequest = request.newBuilder()
-                .removeHeader("No-Authentication")
+                .removeHeader(Constants.NO_AUTH_HEADER)
                 .build()
         } else {
             // 1. Get the current User ID using runBlocking
