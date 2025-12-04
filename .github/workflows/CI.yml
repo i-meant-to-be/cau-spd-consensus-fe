@@ -18,6 +18,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Prepare local properties
+      - name: Prepare local properties
+        run: echo "${{ secrets.LOCAL_PROPERTIES }}" > local.properties
+
       # Specify changes
       - name: Check for changes
         uses: dorny/paths-filter@v3
