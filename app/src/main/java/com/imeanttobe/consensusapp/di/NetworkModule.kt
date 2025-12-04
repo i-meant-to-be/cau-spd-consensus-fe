@@ -1,5 +1,6 @@
 package com.imeanttobe.consensusapp.di
 
+import com.imeanttobe.consensusapp.BuildConfig
 import com.imeanttobe.consensusapp.data.interceptors.AuthInterceptor
 import com.imeanttobe.consensusapp.data.interceptors.LoggingInterceptor
 import dagger.Module
@@ -7,6 +8,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
@@ -29,6 +32,16 @@ object NetworkModule {
                     addInterceptor(LoggingInterceptor())
                 }
             }
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BuildConfig.API_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 }
