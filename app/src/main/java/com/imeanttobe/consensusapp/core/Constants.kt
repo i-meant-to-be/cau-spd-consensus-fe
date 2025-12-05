@@ -7,4 +7,6 @@ object Constants {
     const val MIN_OPTIONS = 2
     const val MAX_PARTICIPANTS = 10
     const val MIN_PARTICIPANTS = 3
+
+    const val NO_AUTH_HEADER = "No-Authentication"
 }

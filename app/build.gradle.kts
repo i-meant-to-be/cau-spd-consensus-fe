@@ -56,9 +56,14 @@ android {
 
         // Set the values from local.properties
         val isDevModeEnabled = parseBoolean(localProperties.getProperty("config.isDevModeEnabled"), false)
+        val isHttpLoggingEnabled = parseBoolean(localProperties.getProperty("config.isHttpLoggingEnabled"), false)
+        val apiBaseUrl = localProperties.getProperty("api.baseUrl")
+            ?: throw GradleException("API_BASE_URL is not set in local.properties")
 
         // Set the buildConfigField
         buildConfigField("Boolean", "IS_DEV_MODE_ENABLED", isDevModeEnabled.toString())
+        buildConfigField("Boolean", "IS_HTTP_LOGGING_ENABLED", isHttpLoggingEnabled.toString())
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 
     buildTypes {
@@ -130,17 +135,21 @@ dependencies {
     implementation(libs.dagger.hilt.android)
     androidTestImplementation(libs.dagger.hilt.android.testing)
 
+    // Proto Datastore
+    implementation(libs.datastore.core)
+    implementation(libs.datastore.preferences)
+    implementation(libs.protobuf.kotlin.lite)
+
+    // Network
+    implementation(libs.squareup.retrofit2)
+    implementation(libs.squareup.retrofit2.converter.gson)
+
     // Global
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.material.icons.extended)
     implementation(libs.kotlinx.immutable.collections)
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.mockk.agent)
-
-    // Proto Datastore
-    implementation(libs.datastore.core)
-    implementation(libs.datastore.preferences)
-    implementation(libs.protobuf.kotlin.lite)
 
     // Default
     implementation(libs.androidx.core.ktx)

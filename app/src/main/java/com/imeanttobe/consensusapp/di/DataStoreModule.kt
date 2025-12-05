@@ -1,4 +1,4 @@
-package com.imeanttobe.consensusapp.core
+package com.imeanttobe.consensusapp.di
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class HiltModule {
+abstract class DataStoreModule {
     companion object {
         @Provides
         @Singleton
