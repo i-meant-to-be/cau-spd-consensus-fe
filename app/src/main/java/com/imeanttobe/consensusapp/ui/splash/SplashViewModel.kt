@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.imeanttobe.consensusapp.core.UiState
-import com.imeanttobe.consensusapp.data.repo.IdRepo
+import com.imeanttobe.consensusapp.domain.repo.IdRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.UUID

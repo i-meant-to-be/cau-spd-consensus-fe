@@ -3,7 +3,7 @@ package com.imeanttobe.consensusapp.data.repo
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.imeanttobe.consensusapp.data.serializer.idDataStore
+import com.imeanttobe.consensusapp.data.local.serializer.idDataStore
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before

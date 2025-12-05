@@ -23,28 +23,28 @@ interface PollApi {
 
     @PATCH("api/polls/{id}/finish")
     suspend fun finishPoll(
-        @Path("id") id: String
+        @Path("id") id: Int
     ): Response<FinishPollResponse>
 
     @PATCH("api/polls/{id}/vote")
     suspend fun votePoll(
-        @Path("id") id: String,
+        @Path("id") id: Int,
         @Body request: VoteRequest
     ): Response<Unit>
 
     @PATCH("api/polls/{id}/submit")
     suspend fun submitPollResult(
-        @Path("id") id: String,
+        @Path("id") id: Int,
         @Body request: SubmitPollResultRequest
     ): Response<SubmitPollResultResponse>
 
     @GET("api/polls/{id}")
     suspend fun getPoll(
-        @Path("id") id: String
+        @Path("id") id: Int
     ): Response<GetPollResponse>
 
     @GET("api/polls/{id}/result")
     suspend fun getPollResult(
-        @Path("id") id: String
+        @Path("id") id: Int
     ): Response<GetPollResultResponse>
 }

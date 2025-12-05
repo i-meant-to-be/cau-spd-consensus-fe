@@ -25,4 +25,20 @@ data class CreatePollResponse(
 
     @SerializedName("deepLink")
     val deepLink: String
-)
+) {
+    companion object {
+        fun getFakeData(): CreatePollResponse {
+            return CreatePollResponse(
+                id = 1,
+                title = "Test Poll",
+                candidates = listOf(
+                    "Candidate 1",
+                    "Candidate 2",
+                    "Candidate 3"
+                ),
+                codes = listOf("ABCD", "EFGH", "IJKL"),
+                deepLink = "consensus://poll/1"
+            )
+        }
+    }
+}
