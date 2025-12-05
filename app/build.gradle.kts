@@ -57,12 +57,14 @@ android {
         // Set the values from local.properties
         val isDevModeEnabled = parseBoolean(localProperties.getProperty("config.isDevModeEnabled"), false)
         val isHttpLoggingEnabled = parseBoolean(localProperties.getProperty("config.isHttpLoggingEnabled"), false)
+        val isMockEnabled = parseBoolean(localProperties.getProperty("config.isMockEnabled"), false)
         val apiBaseUrl = localProperties.getProperty("api.baseUrl")
             ?: throw GradleException("API_BASE_URL is not set in local.properties")
 
         // Set the buildConfigField
         buildConfigField("Boolean", "IS_DEV_MODE_ENABLED", isDevModeEnabled.toString())
         buildConfigField("Boolean", "IS_HTTP_LOGGING_ENABLED", isHttpLoggingEnabled.toString())
+        buildConfigField("Boolean", "IS_MOCK_ENABLED", isMockEnabled.toString())
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 
