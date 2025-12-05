@@ -18,8 +18,10 @@ class PollRepoImpl @Inject constructor(
             val response = pollApi.getPoll(id)
 
             if (response.isSuccessful) {
-                if (response.body() != null) {
-                    Result.success(response.body()!!)
+                val body = response.body()
+
+                if (body != null) {
+                    Result.success(body)
                 } else {
                     Result.failure(Exception("Response body is null"))
                 }
@@ -51,7 +53,9 @@ class PollRepoImpl @Inject constructor(
             val response = pollApi.getPollResult(id)
 
             if (response.isSuccessful) {
-                if (response.body() != null) {
+                val body = response.body()
+
+                if (body != null) {
                     Result.success(response.body()!!)
                 } else {
                     Result.failure(Exception("Response body is null"))
@@ -90,8 +94,10 @@ class PollRepoImpl @Inject constructor(
             val response = pollApi.createPoll(request)
 
             if (response.isSuccessful) {
-                if (response.body() != null) {
-                    Result.success(response.body()!!)
+                val body = response.body()
+
+                if (body != null) {
+                    Result.success(body)
                 } else {
                     Result.failure(Exception("Response body is null"))
                 }
