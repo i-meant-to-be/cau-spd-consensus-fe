@@ -2,6 +2,7 @@ package com.imeanttobe.consensusapp.data.repo
 
 import androidx.datastore.core.DataStore
 import com.imeanttobe.consensusapp.Id
+import com.imeanttobe.consensusapp.domain.repo.IdRepo
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
