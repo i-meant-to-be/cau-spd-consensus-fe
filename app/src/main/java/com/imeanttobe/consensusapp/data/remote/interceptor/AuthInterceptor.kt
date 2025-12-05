@@ -1,8 +1,7 @@
-package com.imeanttobe.consensusapp.data.interceptors
+package com.imeanttobe.consensusapp.data.remote.interceptor
 
 import com.imeanttobe.consensusapp.core.Constants
 import com.imeanttobe.consensusapp.data.repo.IdRepo
-import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -25,25 +24,15 @@ class AuthInterceptor @Inject constructor(
                 .removeHeader(Constants.NO_AUTH_HEADER)
                 .build()
         } else {
-            // 1. Get the current User ID using runBlocking
-            // This blocks the network thread until the ID is retrieved from disk
-            val userIdRequest = runBlocking {
-                idRepo.getId()
-            }
-            lateinit var userId: String
+            // 1. Get the current User ID
+            val userId = idRepo.getCachedIdOrEmpty()
 
-            // 2. Check whether the request for id is successful
-            if (userIdRequest.isSuccess) {
-                val tempUserId = userIdRequest.getOrNull()
-                userId = tempUserId ?: ""
-            } else {
-                userId = ""
+            // 2. Attach the User ID to the request
+            val builder = request.newBuilder()
+            if (userId.isNotBlank()) {
+                builder.header("X-User-Id", userId)
             }
-
-            // 3. Create the new request with the header
-            newRequest = request.newBuilder()
-                .header("X-User-Id", userId ?: "")
-                .build()
+            newRequest = builder.build()
         }
 
         // Proceed

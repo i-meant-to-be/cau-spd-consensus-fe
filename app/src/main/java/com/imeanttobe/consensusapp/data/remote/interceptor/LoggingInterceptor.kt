@@ -1,4 +1,4 @@
-package com.imeanttobe.consensusapp.data.interceptors
+package com.imeanttobe.consensusapp.data.remote.interceptor
 
 import android.util.Log
 import okhttp3.Interceptor
