@@ -17,4 +17,18 @@ data class SubmitPollResultResponse(
 
     @SerializedName("votes")
     val votes: List<Int>
-)
+) {
+    companion object {
+        fun getFakeData(): SubmitPollResultResponse {
+            return SubmitPollResultResponse(
+                id = 1,
+                candidates = listOf(
+                    "Candidate 1",
+                    "Candidate 2",
+                    "Candidate 3"
+                ),
+                votes = listOf(10, 20, 30),
+            )
+        }
+    }
+}
