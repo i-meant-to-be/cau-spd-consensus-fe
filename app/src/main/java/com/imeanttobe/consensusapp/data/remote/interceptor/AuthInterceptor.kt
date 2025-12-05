@@ -28,9 +28,11 @@ class AuthInterceptor @Inject constructor(
             val userId = idRepo.getCachedIdOrEmpty()
 
             // 2. Attach the User ID to the request
-            newRequest = request.newBuilder()
-                .header("X-User-Id", userId)
-                .build()
+            val builder = request.newBuilder()
+            if (userId.isNotBlank()) {
+                builder.header("X-User-Id", userId)
+            }
+            newRequest = builder.build()
         }
 
         // Proceed
