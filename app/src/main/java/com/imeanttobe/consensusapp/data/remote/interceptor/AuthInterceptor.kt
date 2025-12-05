@@ -1,7 +1,7 @@
 package com.imeanttobe.consensusapp.data.remote.interceptor
 
 import com.imeanttobe.consensusapp.core.Constants
-import com.imeanttobe.consensusapp.data.repo.IdRepo
+import com.imeanttobe.consensusapp.domain.repo.IdRepo
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response

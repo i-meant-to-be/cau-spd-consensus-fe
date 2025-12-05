@@ -1,4 +1,4 @@
-package com.imeanttobe.consensusapp.data.repo
+package com.imeanttobe.consensusapp.domain.repo
 
 interface IdRepo {
     suspend fun getId(): Result<String>
