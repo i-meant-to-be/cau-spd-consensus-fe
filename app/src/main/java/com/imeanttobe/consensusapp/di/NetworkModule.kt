@@ -1,8 +1,8 @@
 package com.imeanttobe.consensusapp.di
 
 import com.imeanttobe.consensusapp.BuildConfig
-import com.imeanttobe.consensusapp.data.interceptors.AuthInterceptor
-import com.imeanttobe.consensusapp.data.interceptors.LoggingInterceptor
+import com.imeanttobe.consensusapp.data.remote.interceptor.AuthInterceptor
+import com.imeanttobe.consensusapp.data.remote.interceptor.LoggingInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,8 +1,7 @@
-package com.imeanttobe.consensusapp.data.interceptors
+package com.imeanttobe.consensusapp.data.remote.interceptor
 
 import com.imeanttobe.consensusapp.core.Constants
 import com.imeanttobe.consensusapp.data.repo.IdRepo
-import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
