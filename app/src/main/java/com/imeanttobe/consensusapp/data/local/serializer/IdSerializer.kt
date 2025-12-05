@@ -1,4 +1,4 @@
-package com.imeanttobe.consensusapp.data.serializer
+package com.imeanttobe.consensusapp.data.local.serializer
 
 import android.content.Context
 import androidx.datastore.core.CorruptionException

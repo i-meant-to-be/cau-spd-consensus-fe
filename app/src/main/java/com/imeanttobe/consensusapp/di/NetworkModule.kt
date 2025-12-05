@@ -1,6 +1,7 @@
 package com.imeanttobe.consensusapp.di
 
 import com.imeanttobe.consensusapp.BuildConfig
+import com.imeanttobe.consensusapp.data.remote.api.PollApi
 import com.imeanttobe.consensusapp.data.remote.interceptor.AuthInterceptor
 import com.imeanttobe.consensusapp.data.remote.interceptor.LoggingInterceptor
 import dagger.Module
@@ -43,5 +44,11 @@ object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun providePollApi(retrofit: Retrofit): PollApi {
+        return retrofit.create(PollApi::class.java)
     }
 }

@@ -5,7 +5,7 @@ import androidx.datastore.core.DataStore
 import com.imeanttobe.consensusapp.Id
 import com.imeanttobe.consensusapp.data.repo.IdRepo
 import com.imeanttobe.consensusapp.data.repo.IdRepoImpl
-import com.imeanttobe.consensusapp.data.serializer.idDataStore
+import com.imeanttobe.consensusapp.data.local.serializer.idDataStore
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
