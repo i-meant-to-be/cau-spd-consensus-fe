@@ -4,7 +4,7 @@
 #include <vector>
 #include <sstream>
 
-#include "SEAL/seal.h"
+#include "seal/seal.h"
 #include "JNIBridge.h"
 
 // Namespaces
