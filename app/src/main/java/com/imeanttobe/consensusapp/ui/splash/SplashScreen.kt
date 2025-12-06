@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.core.findActivity
@@ -35,14 +36,17 @@ fun SplashScreen(
 ) {
     val context = LocalContext.current
 
-    LaunchedEffect(key1 = viewModel.splashState.value) {
-        if (viewModel.splashState.value is UiState.Success) {
+    val splashState = viewModel.splashState.collectAsStateWithLifecycle()
+    val dialogState = viewModel.dialogState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = splashState.value) {
+        if (splashState.value is UiState.Success) {
             navController.navigate(Route.DevRoute) {
                 popUpTo(Route.SplashScreen) {
                     inclusive = true
                 }
             }
-        } else if (viewModel.splashState.value is UiState.Failure) {
+        } else if (splashState.value is UiState.Failure) {
             viewModel.setDialogState(true)
         }
     }
@@ -68,7 +72,7 @@ fun SplashScreen(
         }
     }
 
-    if (viewModel.dialogState.value) {
+    if (dialogState.value) {
         AlertDialog(
             onDismissRequest = {  },
             icon = { Icon(imageVector = Icons.Outlined.Warning, contentDescription = null) },
