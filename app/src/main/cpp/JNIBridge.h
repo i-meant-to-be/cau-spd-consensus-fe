@@ -11,6 +11,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_stringFromJNI(JNIEnv *env, jobje
 extern "C" JNIEXPORT jboolean JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_initContext(JNIEnv *env, jobject);
 
+/*
 // Create PK and SK
 extern "C" JNIEXPORT jbyteArray JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobject);
@@ -18,3 +19,4 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobjec
 // Load given PK on native side
 extern "C" JNIEXPORT void JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_loadPublicKey(JNIEnv *env, jobject, jbyteArray pkBytes);
+*/
