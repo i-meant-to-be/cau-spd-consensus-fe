@@ -1,12 +1,13 @@
 package com.imeanttobe.consensusapp.ui.splash
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.domain.repo.IdRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -15,11 +16,11 @@ import javax.inject.Inject
 class SplashViewModel @Inject constructor(
     private val idRepo: IdRepo,
 ) : ViewModel() {
-    private val _splashState = mutableStateOf<UiState<Unit>>(UiState.Idle)
-    val splashState: State<UiState<Unit>> = _splashState
+    private val _splashState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
+    val splashState: StateFlow<UiState<Unit>> = _splashState
 
-    private val _dialogState = mutableStateOf<Boolean>(false)
-    val dialogState: State<Boolean> = _dialogState
+    private val _dialogState = MutableStateFlow<Boolean>(false)
+    val dialogState: StateFlow<Boolean> = _dialogState
 
     init {
         checkAndGenerateId()
@@ -32,6 +33,7 @@ class SplashViewModel @Inject constructor(
     fun checkAndGenerateId() {
        viewModelScope.launch {
            _splashState.value = UiState.Loading
+           Log.d("Consensus", "# checkAndGenerateId called.")
 
            try {
                val isExist = idRepo.isExist()
