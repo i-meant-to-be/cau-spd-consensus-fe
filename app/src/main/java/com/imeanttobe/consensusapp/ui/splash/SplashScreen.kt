@@ -1,6 +1,5 @@
 package com.imeanttobe.consensusapp.ui.splash
 
-import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.imeanttobe.consensusapp.core.UiState
@@ -48,7 +46,6 @@ fun SplashScreen(
                     inclusive = true
                 }
             }
-        } else if (splashState.value is UiState.Failure) {
         } else if (splashState.value is UiState.Failure) {
             viewModel.setDialogState(true)
         }
