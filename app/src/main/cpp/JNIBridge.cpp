@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <android/log.h>
 
 #include "seal/seal.h"
 #include "JNIBridge.h"
@@ -60,6 +61,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_initContext(JNIEnv *env, jobject
 
         return JNI_TRUE;
     } catch (...) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Error in init");
         return JNI_FALSE;
     }
 }
