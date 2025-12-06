@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.core.findActivity
@@ -47,6 +48,7 @@ fun SplashScreen(
                     inclusive = true
                 }
             }
+        } else if (splashState.value is UiState.Failure) {
         } else if (splashState.value is UiState.Failure) {
             viewModel.setDialogState(true)
         }

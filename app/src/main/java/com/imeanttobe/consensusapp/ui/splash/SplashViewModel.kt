@@ -1,7 +1,6 @@
 package com.imeanttobe.consensusapp.ui.splash
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.imeanttobe.consensusapp.core.UiState
