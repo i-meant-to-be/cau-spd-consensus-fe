@@ -6,5 +6,5 @@ object NativeLib {
     }
 
     external fun stringFromJNI(): String
-    external fun initContext(): Unit
+    external fun initContext(): Boolean
 }
