@@ -49,36 +49,33 @@ class PollInfoItemsRepoImpl @Inject constructor(
         }
     }
 
-    override suspend fun addPollInfo(pollInfo: PollInfo): Result<Boolean> {
+    override suspend fun addPollInfo(pollInfo: PollInfo): Result<Unit> {
         try {
-            pollInfoItemsDataStore.updateData { pollInfoItems ->
-                pollInfoItems.toBuilder()
+            pollInfoItemsDataStore.updateData { current ->
+                current.toBuilder()
                     .addItems(pollInfo)
                     .build()
             }
 
-            return Result.success(true)
+            return Result.success(Unit)
         } catch (e: Exception) {
             return Result.failure(e)
         }
     }
 
-    override suspend fun removePollInfo(id: Int): Result<Boolean> {
+    override suspend fun removePollInfo(id: Int): Result<Unit> {
         try {
-            val pollInfoItems = pollInfoItemsDataStore.data.first()
-            val newPollInfoItems = PollInfoItems.newBuilder()
-
-
-            pollInfoItems.itemsList.forEach {
-                if (it.id != id) {
-                    newPollInfoItems.addItems(it)
+            pollInfoItemsDataStore.updateData { current ->
+                val newPollInfoItems = PollInfoItems.newBuilder()
+                current.itemsList.forEach {
+                    if (it.id != id) {
+                        newPollInfoItems.addItems(it)
+                    }
                 }
-            }
-            pollInfoItemsDataStore.updateData {
                 newPollInfoItems.build()
             }
 
-            return Result.success(true)
+            return Result.success(Unit)
         } catch (e: Exception) {
             return Result.failure(e)
         }
