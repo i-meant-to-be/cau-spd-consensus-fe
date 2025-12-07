@@ -9,15 +9,6 @@ class FakePollInfoItemsRepoImpl : PollInfoItemsRepo {
         return Result.success(listOf(PollInfo.getDefaultInstance()))
     }
 
-    override suspend fun getAllPollUiInfo(): Result<List<PollUiModel>> {
-        val items = listOf(
-            PollUiModel(1, "Poll 1"),
-            PollUiModel(2, "Poll 2"),
-            PollUiModel(3, "Poll 3")
-        )
-        return Result.success(items)
-    }
-
     override suspend fun getPollInfo(id: Int): Result<PollInfo> {
         return Result.success(PollInfo.getDefaultInstance())
     }
