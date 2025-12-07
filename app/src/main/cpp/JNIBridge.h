@@ -17,7 +17,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobjec
 
 // Encrypts a vector of integers.
 extern "C" JNIEXPORT jbyteArray JNICALL
-Java_com_imeanttobe_consensusapp_seal_NativeLib_encrypt(JNIEnv *env, jobject, jlongArray inputVector);
+Java_com_imeanttobe_consensusapp_seal_NativeLib_encrypt(JNIEnv *env, jobject, jlongArray inputVector, jbyteArray publicKeyBytes);
 
 // Decrypts a vector of integers.
 extern "C" JNIEXPORT jlongArray JNICALL
