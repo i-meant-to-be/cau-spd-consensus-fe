@@ -1,5 +1,6 @@
 package com.imeanttobe.consensusapp.ui.splash
 
+import android.util.Base64
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -53,7 +54,7 @@ class SplashViewModel @Inject constructor(
                     return@launch
                 }
 
-                delay(1000)
+                delay(800)
                 
                 // 2. Prepare id
                 _loadingMessage.value = "기기 정보를 확인하는 중..."
@@ -61,7 +62,7 @@ class SplashViewModel @Inject constructor(
                     processIdCheck()
                 }
 
-                delay(1000)
+                delay(800)
 
                 if (idResult.isSuccess) {
                     _splashState.value = UiState.Success(Unit)
