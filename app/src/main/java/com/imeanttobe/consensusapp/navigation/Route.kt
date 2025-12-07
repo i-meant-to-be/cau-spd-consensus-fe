@@ -16,6 +16,9 @@ sealed interface Route {
     data object DevRoute : Route
 
     @Serializable
+    data class VoteResultScreen(val isVoteSuccess: Boolean, val errorMessage: String) : Route
+
+    @Serializable
     data class HostDashboardScreen(val id: Int) : Route
 
     @Serializable
