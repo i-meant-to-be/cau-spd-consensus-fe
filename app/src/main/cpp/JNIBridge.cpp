@@ -80,8 +80,10 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobjec
     }
 
     try {
-        // Create KeyGenerator
-        g_keygen = make_unique<KeyGenerator>(*g_context);
+        // Check whether key generator is exist
+        if (!g_keygen) {
+            g_keygen = make_unique<KeyGenerator>(*g_context);
+        }
 
         // Create SK, PK
         g_secret_key = make_unique<SecretKey>(g_keygen->secret_key());
@@ -112,9 +114,17 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobjec
 
         // Find SealKeys class
         jclass seal_keys_class = env->FindClass(PATH_SEAL_KEYS_CLASS.c_str());
+        if (seal_keys_class == nullptr) {
+            __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Failed to find SealKeys class.");
+            return nullptr;
+        }
 
         // Find constructor
         jmethodID constructor = env->GetMethodID(seal_keys_class, "<init>", "([B[B)V");
+        if (constructor == nullptr) {
+            __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Failed to find constructor.");
+            return nullptr;
+        }
 
         // Create Java object
         jobject seal_keys = env->NewObject(seal_keys_class, constructor, pk_bytes, sk_bytes);
