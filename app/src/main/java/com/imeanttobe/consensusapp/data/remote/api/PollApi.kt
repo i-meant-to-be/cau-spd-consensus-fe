@@ -5,6 +5,7 @@ import com.imeanttobe.consensusapp.data.remote.dto.CreatePollResponse
 import com.imeanttobe.consensusapp.data.remote.dto.FinishPollResponse
 import com.imeanttobe.consensusapp.data.remote.dto.GetPollResponse
 import com.imeanttobe.consensusapp.data.remote.dto.GetPollResultResponse
+import com.imeanttobe.consensusapp.data.remote.dto.GetPollStatusResponse
 import com.imeanttobe.consensusapp.data.remote.dto.SubmitPollResultRequest
 import com.imeanttobe.consensusapp.data.remote.dto.SubmitPollResultResponse
 import com.imeanttobe.consensusapp.data.remote.dto.VoteRequest
@@ -47,4 +48,9 @@ interface PollApi {
     suspend fun getPollResult(
         @Path("id") id: Int
     ): Response<GetPollResultResponse>
+
+    @GET("api/polls/{id}/status")
+    suspend fun getPollStatus(
+        @Path("id") id: Int
+    ): Response<GetPollStatusResponse>
 }
