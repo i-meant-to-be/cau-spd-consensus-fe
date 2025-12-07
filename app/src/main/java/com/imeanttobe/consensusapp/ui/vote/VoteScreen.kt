@@ -59,7 +59,7 @@ fun VoteScreen(
         viewModel.vote()
     }
 
-    val isSubmitButtonEnabled = voteCode.value.isNotEmpty()
+    val isSubmitButtonEnabled = voteCode.value.isNotBlank()
             && selectedCandidate.value.isNotBlank()
             && pollResponseUiState.value is UiState.Success
             && voteRequestUiState.value !is UiState.Loading
@@ -206,7 +206,7 @@ fun VoteScreen(
                         modifier = Modifier.size(64.dp).padding(bottom = 16.dp)
                     )
                     Text(
-                        text = "투표 데이터를 불러오지 못했어요: ${(pollResponseUiState.value as UiState.Failure).message}",
+                        text = "투표 데이터를 불러오지 못했어요: ${pollState.message}",
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.bodyMedium,
                     )
