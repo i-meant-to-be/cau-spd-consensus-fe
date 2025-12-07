@@ -49,7 +49,7 @@ class PollInfoItemsRepoImpl @Inject constructor(
         }
     }
 
-    override suspend fun addPollInfo(keyBundle: PollInfo): Result<Boolean> {
+    override suspend fun addPollInfo(pollInfo: PollInfo): Result<Boolean> {
         try {
             val pollInfoItems = pollInfoItemsDataStore.data.first()
             val newPollInfoItems = pollInfoItems.toBuilder()

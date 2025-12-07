@@ -7,6 +7,6 @@ interface PollInfoItemsRepo {
     suspend fun getAllPollInfo(): Result<List<PollInfo>>
     suspend fun getAllPollUiInfo(): Result<List<PollUiModel>>
     suspend fun getPollInfo(id: Int): Result<PollInfo>
-    suspend fun addPollInfo(keyBundle: PollInfo): Result<Boolean>
+    suspend fun addPollInfo(pollInfo: PollInfo): Result<Boolean>
     suspend fun removePollInfo(id: Int): Result<Boolean>
 }
