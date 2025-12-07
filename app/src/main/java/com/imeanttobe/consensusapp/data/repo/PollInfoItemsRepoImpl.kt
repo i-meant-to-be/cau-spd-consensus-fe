@@ -66,13 +66,11 @@ class PollInfoItemsRepoImpl @Inject constructor(
     override suspend fun removePollInfo(id: Int): Result<Unit> {
         try {
             pollInfoItemsDataStore.updateData { current ->
-                val newPollInfoItems = PollInfoItems.newBuilder()
-                current.itemsList.forEach {
-                    if (it.id != id) {
-                        newPollInfoItems.addItems(it)
-                    }
-                }
-                newPollInfoItems.build()
+                val updatedItems = current.itemsList.filter { it.id != id }
+                current.toBuilder()
+                    .clearItems()
+                    .addAllItems(updatedItems)
+                    .build()
             }
 
             return Result.success(Unit)
