@@ -28,7 +28,7 @@ object NativeLib {
      * @param inputVector 평문 (LongArray)
      * @return 암호문 (ByteArray?)
      */
-    external fun encrypt(inputVector: LongArray): ByteArray?
+    external fun encrypt(inputVector: LongArray, publicKeyBytes: ByteArray): ByteArray?
 
     /**
      * 암호문을 평문으로 복호화합니다.
