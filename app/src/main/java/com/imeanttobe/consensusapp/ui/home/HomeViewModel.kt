@@ -1,13 +1,10 @@
 package com.imeanttobe.consensusapp.ui.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.imeanttobe.consensusapp.PollInfo
 import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.domain.model.PollUiModel
 import com.imeanttobe.consensusapp.domain.repo.PollInfoItemsRepo
-import com.imeanttobe.consensusapp.pollInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,8 +29,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = UiState.Loading
 
-            pollInfoItemsRepo.getAllPollUiInfo().onSuccess {
-                _recentPollItems.value = it
+            pollInfoItemsRepo.getAllPollInfo().onSuccess { items ->
+                _recentPollItems.value = items.map { item -> PollUiModel(item.id, item.title) }
                 _uiState.value = UiState.Success(Unit)
             }.onFailure {
                 _recentPollItems.value = emptyList()

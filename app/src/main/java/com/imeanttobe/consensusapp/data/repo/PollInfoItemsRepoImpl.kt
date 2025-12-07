@@ -21,19 +21,6 @@ class PollInfoItemsRepoImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAllPollUiInfo(): Result<List<PollUiModel>> {
-        try {
-            val pollInfoItems = pollInfoItemsDataStore.data.first()
-            val pollUiModels = pollInfoItems.itemsList.map {
-                PollUiModel(it.id, it.title)
-            }
-
-            return Result.success(pollUiModels)
-        } catch (e: Exception) {
-            return Result.failure(e)
-        }
-    }
-
     override suspend fun getPollInfo(id: Int): Result<PollInfo> {
         try {
             val pollInfoItems = pollInfoItemsDataStore.data.first()
