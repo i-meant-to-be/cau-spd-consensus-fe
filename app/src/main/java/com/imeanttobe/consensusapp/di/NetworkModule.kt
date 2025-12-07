@@ -4,6 +4,9 @@ import com.imeanttobe.consensusapp.BuildConfig
 import com.imeanttobe.consensusapp.data.remote.api.PollApi
 import com.imeanttobe.consensusapp.data.remote.interceptor.AuthInterceptor
 import com.imeanttobe.consensusapp.data.remote.interceptor.LoggingInterceptor
+import com.imeanttobe.consensusapp.data.repo.FakePollRepoImpl
+import com.imeanttobe.consensusapp.data.repo.PollRepoImpl
+import com.imeanttobe.consensusapp.domain.repo.PollRepo
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -50,5 +53,15 @@ object NetworkModule {
     @Singleton
     fun providePollApi(retrofit: Retrofit): PollApi {
         return retrofit.create(PollApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providePollRepo(pollApi: PollApi): PollRepo {
+        return if (BuildConfig.IS_MOCK_ENABLED) {
+            FakePollRepoImpl()
+        } else {
+            PollRepoImpl(pollApi)
+        }
     }
 }

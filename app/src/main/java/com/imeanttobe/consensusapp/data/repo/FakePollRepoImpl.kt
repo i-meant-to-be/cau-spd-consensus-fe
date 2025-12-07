@@ -4,6 +4,7 @@ import com.imeanttobe.consensusapp.data.remote.dto.CreatePollResponse
 import com.imeanttobe.consensusapp.data.remote.dto.GetPollResponse
 import com.imeanttobe.consensusapp.data.remote.dto.GetPollResultResponse
 import com.imeanttobe.consensusapp.domain.repo.PollRepo
+import kotlinx.coroutines.delay
 
 class FakePollRepoImpl : PollRepo {
     override suspend fun createPoll(
@@ -22,6 +23,7 @@ class FakePollRepoImpl : PollRepo {
         vote: String,
         code: String
     ): Result<Unit> {
+        delay(500)
         return Result.success(Unit)
     }
 

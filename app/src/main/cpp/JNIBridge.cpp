@@ -17,7 +17,6 @@ using namespace seal;
 // Unique pointers
 static unique_ptr<SEALContext>  g_context;
 static unique_ptr<KeyGenerator> g_keygen;
-static unique_ptr<Encryptor>    g_encryptor;
 static unique_ptr<Decryptor>    g_decryptor;
 static unique_ptr<Evaluator>    g_evaluator;
 static unique_ptr<BatchEncoder> g_encoder;
@@ -92,7 +91,6 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobjec
         g_keygen->create_public_key(*g_public_key);
 
         // Create encryptor and decryptor
-        g_encryptor = make_unique<Encryptor>(*g_context, *g_public_key);
         g_decryptor = make_unique<Decryptor>(*g_context, *g_secret_key);
 
         // Serialize pk
@@ -145,19 +143,37 @@ extern "C" JNIEXPORT jbyteArray JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_encrypt(
         JNIEnv *env,
         jobject,
-        jlongArray inputVector) {
+        jlongArray inputVector,
+	    jbyteArray publicKeyBytes
+) {
     // Check whether context is initialized
-    if (!g_context || !g_encoder || !g_encryptor) {
+    if (!g_context || !g_encoder) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Context is not ready.");
         return nullptr;
     }
 
 	// Check whether input array is valid
-	if (inputVector == nullptr) {
-		__android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input vector is null.");
+	if (inputVector == nullptr || publicKeyBytes == nullptr) {
+		__android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input vector or public key is null.");
 		return nullptr;
 	}
 
     try {
+        // --- 2. 공개 키 로드 (ByteArray -> PublicKey) ---
+        // 전달받은 바이트 배열을 C++ 스트림으로 변환
+        jsize pk_len = env->GetArrayLength(publicKeyBytes);
+        jbyte* pk_ptr = env->GetByteArrayElements(publicKeyBytes, nullptr);
+        string pk_str(reinterpret_cast<char*>(pk_ptr), pk_len);
+        env->ReleaseByteArrayElements(publicKeyBytes, pk_ptr, JNI_ABORT);
+
+        stringstream pk_stream(pk_str);
+        PublicKey public_key;
+        public_key.load(*g_context, pk_stream); // 공개 키 복원
+
+        // --- 3. 일회용 Encryptor 생성 ---
+        // 전역 변수(g_encryptor)를 쓰지 않고, 이 투표만을 위한 암호화기를 만듭니다.
+        Encryptor local_encryptor(*g_context, public_key);
+
         // --- 1. JNI jlongArray -> C++ vector<int64_t> 변환 ---
         jsize len = env->GetArrayLength(inputVector);
         jlong* ptr = env->GetLongArrayElements(inputVector, 0);
@@ -179,7 +195,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_encrypt(
 
         // --- 3. 암호화 (Plaintext -> Ciphertext) ---
         Ciphertext encrypted;
-        g_encryptor->encrypt(plain, encrypted);
+        local_encryptor.encrypt(plain, encrypted);
 
         // --- 4. 직렬화 (Ciphertext -> Byte Array) ---
         stringstream stream;

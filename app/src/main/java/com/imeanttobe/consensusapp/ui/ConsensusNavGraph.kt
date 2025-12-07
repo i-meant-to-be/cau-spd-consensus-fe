@@ -15,6 +15,7 @@ import com.imeanttobe.consensusapp.ui.host_dashboard.HostDashboardScreen
 import com.imeanttobe.consensusapp.ui.result.ResultScreen
 import com.imeanttobe.consensusapp.ui.splash.SplashScreen
 import com.imeanttobe.consensusapp.ui.vote.VoteScreen
+import com.imeanttobe.consensusapp.ui.vote_result.VoteResultScreen
 import com.imeanttobe.consensusapp.ui.waiting.WaitingScreen
 
 @Composable
@@ -52,12 +53,17 @@ fun ConsensusNavGraph() {
                 ),
         ) { backStackEntry ->
             val route: Route.VoteScreen = backStackEntry.toRoute()
-            VoteScreen(id = route.id)
+            VoteScreen(id = route.id, navController = navController)
         }
 
         composable<Route.ResultScreen> { backStackEntry ->
             val route: Route.ResultScreen = backStackEntry.toRoute()
             ResultScreen(id = route.id)
+        }
+
+        composable<Route.VoteResultScreen> { backStackEntry ->
+            val route: Route.VoteResultScreen = backStackEntry.toRoute()
+            VoteResultScreen(isVoteSuccess = route.isVoteSuccess, errorMessage = route.errorMessage)
         }
 
         composable<Route.HostDashboardScreen> { backStackEntry ->

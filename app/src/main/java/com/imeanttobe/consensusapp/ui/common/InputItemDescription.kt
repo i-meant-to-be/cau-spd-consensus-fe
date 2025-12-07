@@ -1,4 +1,4 @@
-package com.imeanttobe.consensusapp.ui.create_poll.components
+package com.imeanttobe.consensusapp.ui.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
