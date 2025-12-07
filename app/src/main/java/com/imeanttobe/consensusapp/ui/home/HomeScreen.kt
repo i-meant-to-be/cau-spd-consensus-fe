@@ -10,19 +10,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material.icons.outlined.HowToVote
 import androidx.compose.material.icons.outlined.NotificationImportant
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +31,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.imeanttobe.consensusapp.core.UiState
+import com.imeanttobe.consensusapp.domain.model.PollUiModel
 import com.imeanttobe.consensusapp.navigation.Route
 import com.imeanttobe.consensusapp.ui.home.components.RecentPollCard
 
@@ -44,7 +42,6 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
-    val recentPollItems = viewModel.recentPollItems.collectAsStateWithLifecycle()
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(modifier = modifier) { innerPadding ->
@@ -103,7 +100,7 @@ fun HomeScreen(
             )
             when (uiState.value) {
                 is UiState.Success -> {
-                    if (recentPollItems.value.isEmpty()) {
+                    if ((uiState.value as UiState.Success<List<PollUiModel>>).data.isEmpty()) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -124,7 +121,7 @@ fun HomeScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxWidth().weight(1f)
                         ) {
-                            itemsIndexed(items = recentPollItems.value) { index, item ->
+                            items(items = (uiState.value as UiState.Success<List<PollUiModel>>).data) { item ->
                                 RecentPollCard(
                                     item = item,
                                     onClick = { navController.navigate(Route.HostDashboardScreen(id = item.id)) },

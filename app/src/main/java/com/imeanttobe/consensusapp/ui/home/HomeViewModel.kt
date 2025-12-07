@@ -15,11 +15,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val pollInfoItemsRepo: PollInfoItemsRepo
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
-    val uiState: StateFlow<UiState<Unit>> = _uiState
-
-    private val _recentPollItems = MutableStateFlow<List<PollUiModel>>(emptyList())
-    val recentPollItems: StateFlow<List<PollUiModel>> = _recentPollItems
+    private val _uiState = MutableStateFlow<UiState<List<PollUiModel>>>(UiState.Idle)
+    val uiState: StateFlow<UiState<List<PollUiModel>>> = _uiState
 
     init {
         loadPollUiModel()
@@ -29,13 +26,12 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = UiState.Loading
 
-            pollInfoItemsRepo.getAllPollInfo().onSuccess { items ->
-                _recentPollItems.value = items.map { item -> PollUiModel(item.id, item.title) }
-                _uiState.value = UiState.Success(Unit)
-            }.onFailure {
-                _recentPollItems.value = emptyList()
-                _uiState.value = UiState.Failure(it.message ?: "Unknown error")
-            }
+            pollInfoItemsRepo.getAllPollInfo()
+                .map { items -> items.map { PollUiModel(it.id, it.title) }}
+                .fold(
+                    onSuccess = { _uiState.value = UiState.Success(it) },
+                    onFailure = { _uiState.value = UiState.Failure(it.message ?: "Unknown error") }
+                )
         }
     }
 }
