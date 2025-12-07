@@ -3,6 +3,7 @@ package com.imeanttobe.consensusapp.core.crypto
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import java.security.KeyStore
+import javax.crypto.AEADBadTagException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -99,6 +100,8 @@ class CryptoManager @Inject constructor() {
 
             // 3. Return decrypted text
             return cipher.doFinal(ciphertext)
+        } catch (e: AEADBadTagException) {
+            throw SecurityException("Decryption failed: Invalid ciphertext or IV")
         } catch (e: Exception) {
             throw IllegalStateException("Failed to decrypt data", e)
         }
