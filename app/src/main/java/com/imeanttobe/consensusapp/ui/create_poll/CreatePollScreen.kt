@@ -39,7 +39,7 @@ import com.imeanttobe.consensusapp.core.Constants.MIN_PARTICIPANTS
 import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.ui.create_poll.components.AddOptionDialog
 import com.imeanttobe.consensusapp.ui.create_poll.components.CreatePollScreenTopBar
-import com.imeanttobe.consensusapp.ui.create_poll.components.InputItemDescription
+import com.imeanttobe.consensusapp.ui.common.InputItemDescription
 import com.imeanttobe.consensusapp.ui.create_poll.components.OptionChip
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
