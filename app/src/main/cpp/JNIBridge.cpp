@@ -145,7 +145,7 @@ extern "C" JNIEXPORT jbyteArray JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_encrypt(
         JNIEnv *env,
         jobject,
-        jlongArray input_vector) {
+        jlongArray inputVector) {
     // Check whether context is initialized
     if (!g_context || !g_encoder || !g_encryptor) {
         return nullptr;
@@ -153,8 +153,8 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_encrypt(
 
     try {
         // --- 1. JNI jlongArray -> C++ vector<int64_t> 변환 ---
-        jsize len = env->GetArrayLength(input_vector);
-        jlong* ptr = env->GetLongArrayElements(input_vector, 0);
+        jsize len = env->GetArrayLength(inputVector);
+        jlong* ptr = env->GetLongArrayElements(inputVector, 0);
 
         // 입력 데이터를 SEAL이 처리할 수 있는 벡터로 복사
         vector<int64_t> pod_matrix(len);
@@ -163,7 +163,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_encrypt(
         }
 
         // JNI 메모리 해제 (데이터 복사했으므로 즉시 해제)
-        env->ReleaseLongArrayElements(input_vector, ptr, JNI_ABORT);
+        env->ReleaseLongArrayElements(inputVector, ptr, JNI_ABORT);
 
         // --- 2. 인코딩 (Vector -> Plaintext) ---
         Plaintext plain;
@@ -199,7 +199,7 @@ extern "C" JNIEXPORT jlongArray JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(
         JNIEnv *env,
         jobject,
-        jbyteArray cipher_bytes) {
+        jbyteArray cipherBytes) {
     // Check whether context is initialized
     if (!g_context || !g_encoder || !g_decryptor) {
         return nullptr;
@@ -207,11 +207,11 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(
 
     try {
         // --- 1. JNI ByteArray -> Ciphertext 역직렬화 ---
-        jsize len = env->GetArrayLength(cipher_bytes);
-        jbyte *ptr = env->GetByteArrayElements(cipher_bytes, nullptr);
+        jsize len = env->GetArrayLength(cipherBytes);
+        jbyte *ptr = env->GetByteArrayElements(cipherBytes, nullptr);
 
         string serialized_data(reinterpret_cast<char *>(ptr), len);
-        env->ReleaseByteArrayElements(cipher_bytes, ptr, JNI_ABORT); // JNI_ABORT: 수정 안 했으므로 복사본 버림
+        env->ReleaseByteArrayElements(cipherBytes, ptr, JNI_ABORT); // JNI_ABORT: 수정 안 했으므로 복사본 버림
 
         stringstream stream(serialized_data);
         Ciphertext encrypted;
