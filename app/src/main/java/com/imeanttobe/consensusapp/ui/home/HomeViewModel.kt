@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.imeanttobe.consensusapp.PollInfo
 import com.imeanttobe.consensusapp.core.UiState
+import com.imeanttobe.consensusapp.domain.model.PollUiModel
 import com.imeanttobe.consensusapp.domain.repo.PollInfoItemsRepo
 import com.imeanttobe.consensusapp.pollInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,8 +21,8 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
     val uiState: StateFlow<UiState<Unit>> = _uiState
 
-    private val _recentPollItems = MutableStateFlow<List<PollInfo>>(emptyList())
-    val recentPollItems: StateFlow<List<PollInfo>> = _recentPollItems
+    private val _recentPollItems = MutableStateFlow<List<PollUiModel>>(emptyList())
+    val recentPollItems: StateFlow<List<PollUiModel>> = _recentPollItems
 
     init {
         loadPollUiModel()
@@ -31,7 +32,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = UiState.Loading
 
-            pollInfoItemsRepo.getAllPollInfo().onSuccess {
+            pollInfoItemsRepo.getAllPollUiInfo().onSuccess {
                 _recentPollItems.value = it
                 _uiState.value = UiState.Success(Unit)
             }.onFailure {
