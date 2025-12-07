@@ -20,6 +20,6 @@ data class EncryptionResult(
     }
 
     override fun toString(): String {
-        return "EncryptionResult(ciphertext=${ciphertext.contentToString()} bytes, iv=${iv.contentToString()} bytes)"
+        return "EncryptionResult(ciphertext=${ciphertext.size} bytes, iv=${iv.size} bytes)"
     }
 }
