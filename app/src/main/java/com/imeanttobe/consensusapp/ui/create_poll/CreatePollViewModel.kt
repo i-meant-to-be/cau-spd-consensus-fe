@@ -20,6 +20,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -42,6 +43,9 @@ class CreatePollViewModel @Inject constructor(
     private val _newOption = MutableStateFlow<String>("")
     val newOption: StateFlow<String> = _newOption
 
+    private val _statusMessage = MutableStateFlow<String>("")
+    val statusMessage: StateFlow<String> = _statusMessage
+
     private val _numParticipants = MutableStateFlow<Int>(MIN_PARTICIPANTS)
     val numParticipants: StateFlow<Int> = _numParticipants
 
@@ -50,6 +54,11 @@ class CreatePollViewModel @Inject constructor(
 
     private val _dialogState = MutableStateFlow<Boolean>(false)
     val dialogState: StateFlow<Boolean> = _dialogState
+
+    fun resetUiState() {
+        _uiState.value = UiState.Idle
+        _statusMessage.value = ""
+    }
 
     fun setDialogState(state: Boolean) {
         _dialogState.value = state
@@ -103,6 +112,7 @@ class CreatePollViewModel @Inject constructor(
 
         viewModelScope.launch {
             // Prepare PK and SK
+            _statusMessage.value = "키 생성 중..."
             val sealKeys = withContext(Dispatchers.IO) {
                 NativeLib.generateKeys()
             }
@@ -112,6 +122,7 @@ class CreatePollViewModel @Inject constructor(
             }
 
             // Create request body
+            _statusMessage.value = "투표 개최 요청 중..."
             val encodedPk = Base64.encodeToString(sealKeys.pk, Base64.NO_WRAP)
 
             // Send request
@@ -123,24 +134,24 @@ class CreatePollViewModel @Inject constructor(
 
             // Handle response
             if (response.isSuccess) {
-                val responseBody = response.getOrNull()
-                if (responseBody == null) {
-                    _uiState.value = UiState.Failure("Response body is null")
-                    return@launch
-                } else {
-                    // Save poll info to local storage
-                    val encryptionResult = cryptoManager.encrypt(sealKeys.sk)
-                    val newPollInfo = PollInfo.newBuilder()
-                        .setTitle(title.value)
-                        .setId(responseBody.id)
-                        .setPk(sealKeys.pk.toByteString())
-                        .setEncryptedSk(encryptionResult.ciphertext.toByteString())
-                        .setIv(encryptionResult.iv.toByteString())
-                        .build()
-                    pollInfoItemsRepo.addPollInfo(newPollInfo)
+                response.fold(
+                    onSuccess = {  responseBody ->
+                        // Save poll info to local storage
+                        val encryptionResult = cryptoManager.encrypt(sealKeys.sk)
+                        val newPollInfo = PollInfo.newBuilder()
+                            .setTitle(title.value)
+                            .setId(responseBody.id)
+                            .setPk(sealKeys.pk.toByteString())
+                            .setEncryptedSk(encryptionResult.ciphertext.toByteString())
+                            .setIv(encryptionResult.iv.toByteString())
+                            .build()
 
-                    _uiState.value = UiState.Success(newPollInfo)
-                }
+                        pollInfoItemsRepo.addPollInfo(newPollInfo).fold(
+                            onSuccess = { _uiState.value = UiState.Success(newPollInfo) },
+                            onFailure = { _uiState.value = UiState.Failure(it.message ?: "투표 정보를 기기에 저장하는 데 실패했습니다.") }
+                        ) },
+                    onFailure = { _uiState.value = UiState.Failure(it.message ?: "Unknown error") }
+                )
             } else {
                 _uiState.value = UiState.Failure(response.exceptionOrNull()?.message ?: "Unknown error")
             }

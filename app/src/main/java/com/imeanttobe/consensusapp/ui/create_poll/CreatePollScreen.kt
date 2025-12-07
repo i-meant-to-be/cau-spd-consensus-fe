@@ -5,9 +5,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Edit
@@ -59,6 +62,7 @@ fun CreatePollScreen(
     val title = viewModel.title.collectAsStateWithLifecycle()
     val numParticipants = viewModel.numParticipants.collectAsStateWithLifecycle()
     val options = viewModel.options.collectAsStateWithLifecycle()
+    val statusMessage = viewModel.statusMessage.collectAsStateWithLifecycle()
     val newOption = viewModel.newOption.collectAsStateWithLifecycle()
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val dialogState = viewModel.dialogState.collectAsStateWithLifecycle()
@@ -101,8 +105,8 @@ fun CreatePollScreen(
                     snackbarHostState.showSnackbar(
                         message = "투표 생성 실패. 원인: ${uiStateValue.message}"
                     )
+                    viewModel.resetUiState()
                 }
-                navController.popBackStack()
             }
             else -> {}
         }
@@ -201,9 +205,20 @@ fun CreatePollScreen(
                 modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(16.dp)
             ) {
                 if (uiState.value is UiState.Loading) {
-                    CircularWavyProgressIndicator()
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        CircularWavyProgressIndicator(modifier = Modifier.size(ButtonDefaults.MediumIconSize))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = statusMessage.value,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 } else {
-                    Text(text = "투표 개최하기")
+                    Text(text = "개최하기")
                 }
             }
         }
