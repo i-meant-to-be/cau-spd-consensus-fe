@@ -64,12 +64,12 @@ class VoteViewModel @Inject constructor(
 
             // Get data
             _voteStatusMessage.value = "데이터 준비 중..."
-            if (pollResponseUiState.value !is UiState.Success) {
+            val pollState = pollResponseUiState.value
+            if (pollState !is UiState.Success) {
                 _voteRequestUiState.value = UiState.Failure("Poll data is not loaded")
                 return@launch
             }
-            val response = pollResponseUiState.value as UiState.Success<GetPollResponse>
-            val poll = response.data
+            val poll = pollState.data
 
             // Prepare vector
             val plaintext = LongArray(poll.candidates.size) { 0 }
@@ -115,8 +115,13 @@ class VoteViewModel @Inject constructor(
                 val response = result.getOrNull()
 
                 if (response != null) {
-                    _pollResponseUiState.value = UiState.Success(response)
-                    _selectedCandidate.value = response.candidates[0]
+                    val firstCandidate = response.candidates.firstOrNull()
+                    if (firstCandidate != null) {
+                        _selectedCandidate.value = firstCandidate
+                        _pollResponseUiState.value = UiState.Success(response)
+                    } else {
+                        _pollResponseUiState.value = UiState.Failure("No candidates found")
+                    }
                 } else {
                     _pollResponseUiState.value = UiState.Failure("Response is null")
                 }

@@ -88,9 +88,9 @@ fun VoteScreen(
     }
 
     Scaffold(modifier = modifier) { innerPadding ->
-        when (pollResponseUiState.value) {
+        when (val pollState = pollResponseUiState.value) {
             is UiState.Success -> {
-                val response = (pollResponseUiState.value as UiState.Success<GetPollResponse>).data
+                val response = pollState.data
 
                 Box(
                     modifier = Modifier
