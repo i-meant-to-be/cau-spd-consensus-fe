@@ -72,7 +72,10 @@ fun VoteScreen(
                         isVoteSuccess = true,
                         errorMessage = ""
                     )
-                ) { launchSingleTop = true }
+                ) {
+                    popUpTo(Route.VoteScreen) { inclusive = true }
+                    launchSingleTop = true
+                }
             }
             is UiState.Failure -> {
                 navController.navigate(
@@ -80,7 +83,10 @@ fun VoteScreen(
                         isVoteSuccess = false,
                         errorMessage = (voteRequestUiState.value as UiState.Failure).message
                     )
-                ) { launchSingleTop = true }
+                ) {
+                    popUpTo(Route.VoteScreen) { inclusive = true }
+                    launchSingleTop = true
+                }
             }
             else -> {}
         }

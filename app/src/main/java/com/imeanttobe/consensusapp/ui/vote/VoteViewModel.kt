@@ -81,9 +81,15 @@ class VoteViewModel @Inject constructor(
 
             // Encrypt vector and encode with base64
             _voteStatusMessage.value = "투표 값 암호화 중..."
-            val pk = Base64.decode(poll.pk, Base64.NO_WRAP)
-            val ciphertext = withContext(Dispatchers.IO) {
-                NativeLib.encrypt(plaintext, pk)
+            val ciphertext = try {
+                val pk = Base64.decode(poll.pk, Base64.NO_WRAP)
+                withContext(Dispatchers.IO) {
+                    NativeLib.encrypt(plaintext, pk)
+                }
+            } catch (e: Exception) {
+                Log.e("VoteViewModel", "Encryption failed", e)
+                _voteRequestUiState.value = UiState.Failure("Encryption failed")
+                return@launch
             }
             if (ciphertext == null) {
                 _voteRequestUiState.value = UiState.Failure("Encryption failed")
