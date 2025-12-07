@@ -3,6 +3,7 @@ package com.imeanttobe.consensusapp.data.repo
 import androidx.datastore.core.DataStore
 import com.imeanttobe.consensusapp.PollInfo
 import com.imeanttobe.consensusapp.PollInfoItems
+import com.imeanttobe.consensusapp.domain.model.PollUiModel
 import com.imeanttobe.consensusapp.domain.repo.PollInfoItemsRepo
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
@@ -15,6 +16,19 @@ class PollInfoItemsRepoImpl @Inject constructor(
             val pollInfoItems = pollInfoItemsDataStore.data.first()
 
             return Result.success(pollInfoItems.itemsList)
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+    }
+
+    override suspend fun getAllPollUiInfo(): Result<List<PollUiModel>> {
+        try {
+            val pollInfoItems = pollInfoItemsDataStore.data.first()
+            val pollUiModels = pollInfoItems.itemsList.map {
+                PollUiModel(it.id, it.title)
+            }
+
+            return Result.success(pollUiModels)
         } catch (e: Exception) {
             return Result.failure(e)
         }
