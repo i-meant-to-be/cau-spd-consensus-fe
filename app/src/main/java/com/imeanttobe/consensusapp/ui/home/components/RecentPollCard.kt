@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.imeanttobe.consensusapp.domain.model.PollUiModel
 
@@ -24,10 +25,10 @@ fun RecentPollCard(
     modifier: Modifier = Modifier
 ) {
     Card(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .clip(CardDefaults.shape)
-            .clickable(onClick = onClick)
             .then(modifier)
     ) {
         Row(
@@ -36,6 +37,8 @@ fun RecentPollCard(
         ) {
             Text(
                 text = item.title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
             Icon(

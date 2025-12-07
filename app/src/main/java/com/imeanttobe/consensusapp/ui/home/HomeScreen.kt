@@ -125,8 +125,6 @@ fun HomeScreen(
                             modifier = Modifier.fillMaxWidth().weight(1f)
                         ) {
                             itemsIndexed(items = recentPollItems.value) { index, item ->
-                                val isLastItem = index == recentPollItems.value.size - 1
-
                                 RecentPollCard(
                                     item = item,
                                     onClick = { navController.navigate(Route.HostDashboardScreen(id = item.id)) },
