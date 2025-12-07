@@ -70,14 +70,18 @@ class CryptoManager @Inject constructor() {
         // 0. Check whether plainText is not empty
         require(plainText.isNotEmpty()) { "Plain text cannot be empty" }
 
-        // 1. Load cipher instance
-        val cipher = Cipher.getInstance(TRANSFORMATION)
+        try {
+            // 1. Load cipher instance
+            val cipher = Cipher.getInstance(TRANSFORMATION)
 
-        // 2. Init cipher with encryption mode
-        cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
+            // 2. Init cipher with encryption mode
+            cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
 
-        // 3. Return encrypted text and IV
-        return EncryptionResult(cipher.doFinal(plainText), cipher.iv)
+            // 3. Return encrypted text and IV
+            return EncryptionResult(cipher.doFinal(plainText), cipher.iv)
+        } catch (e: Exception) {
+            throw IllegalStateException("Failed to encrypt data", e)
+        }
     }
 
     fun decrypt(ciphertext: ByteArray, iv: ByteArray): ByteArray {
