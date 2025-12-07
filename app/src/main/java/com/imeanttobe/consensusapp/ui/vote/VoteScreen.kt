@@ -32,7 +32,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.imeanttobe.consensusapp.core.UiState
-import com.imeanttobe.consensusapp.data.remote.dto.GetPollResponse
 import com.imeanttobe.consensusapp.navigation.Route
 import com.imeanttobe.consensusapp.ui.common.InputItemDescription
 import com.imeanttobe.consensusapp.ui.vote.components.CandidateCard
@@ -73,7 +72,7 @@ fun VoteScreen(
                         isVoteSuccess = true,
                         errorMessage = ""
                     )
-                ) { popUpTo(Route.VoteResultScreen) { inclusive = true } }
+                ) { launchSingleTop = true }
             }
             is UiState.Failure -> {
                 navController.navigate(
@@ -81,7 +80,7 @@ fun VoteScreen(
                         isVoteSuccess = false,
                         errorMessage = (voteRequestUiState.value as UiState.Failure).message
                     )
-                ) { popUpTo(Route.VoteResultScreen) { inclusive = true } }
+                ) { launchSingleTop = true }
             }
             else -> {}
         }

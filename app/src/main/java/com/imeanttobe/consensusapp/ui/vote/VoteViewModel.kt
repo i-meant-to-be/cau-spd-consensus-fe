@@ -78,7 +78,6 @@ class VoteViewModel @Inject constructor(
                     plaintext[index] = 1
                 }
             }
-            delay(500)
 
             // Encrypt vector and encode with base64
             _voteStatusMessage.value = "투표 값 암호화 중..."
@@ -91,7 +90,6 @@ class VoteViewModel @Inject constructor(
                 return@launch
             }
             val encodedCiphertext = Base64.encodeToString(ciphertext, Base64.NO_WRAP)
-            delay(500)
 
             // Send it
             _voteStatusMessage.value = "투표 값 서버에 전송 중..."
