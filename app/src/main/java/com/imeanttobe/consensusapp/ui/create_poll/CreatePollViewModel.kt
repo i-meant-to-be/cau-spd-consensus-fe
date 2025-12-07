@@ -12,7 +12,6 @@ import com.imeanttobe.consensusapp.core.Constants.MAX_TITLE_LENGTH
 import com.imeanttobe.consensusapp.core.Constants.MIN_PARTICIPANTS
 import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.core.crypto.CryptoManager
-import com.imeanttobe.consensusapp.data.remote.dto.CreatePollRequest
 import com.imeanttobe.consensusapp.domain.repo.PollInfoItemsRepo
 import com.imeanttobe.consensusapp.domain.repo.PollRepo
 import com.imeanttobe.consensusapp.seal.NativeLib
@@ -20,7 +19,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -133,28 +131,30 @@ class CreatePollViewModel @Inject constructor(
             )
 
             // Handle response
-            if (response.isSuccess) {
-                response.fold(
-                    onSuccess = {  responseBody ->
-                        // Save poll info to local storage
-                        val encryptionResult = cryptoManager.encrypt(sealKeys.sk)
-                        val newPollInfo = PollInfo.newBuilder()
-                            .setTitle(title.value)
-                            .setId(responseBody.id)
-                            .setPk(sealKeys.pk.toByteString())
-                            .setEncryptedSk(encryptionResult.ciphertext.toByteString())
-                            .setIv(encryptionResult.iv.toByteString())
-                            .build()
+            response.fold(
+                onSuccess = {  responseBody ->
+                    // Save poll info to local storage
+                    val encryptionResult = try {
+                        cryptoManager.encrypt(sealKeys.sk)
+                    } catch (e: Exception) {
+                        _uiState.value = UiState.Failure("Failed to encrypt secret key")
+                        return@launch
+                    }
 
-                        pollInfoItemsRepo.addPollInfo(newPollInfo).fold(
-                            onSuccess = { _uiState.value = UiState.Success(newPollInfo) },
-                            onFailure = { _uiState.value = UiState.Failure(it.message ?: "투표 정보를 기기에 저장하는 데 실패했습니다.") }
-                        ) },
-                    onFailure = { _uiState.value = UiState.Failure(it.message ?: "Unknown error") }
-                )
-            } else {
-                _uiState.value = UiState.Failure(response.exceptionOrNull()?.message ?: "Unknown error")
-            }
+                    val newPollInfo = PollInfo.newBuilder()
+                        .setTitle(title.value)
+                        .setId(responseBody.id)
+                        .setPk(sealKeys.pk.toByteString())
+                        .setEncryptedSk(encryptionResult.ciphertext.toByteString())
+                        .setIv(encryptionResult.iv.toByteString())
+                        .build()
+
+                    pollInfoItemsRepo.addPollInfo(newPollInfo).fold(
+                        onSuccess = { _uiState.value = UiState.Success(newPollInfo) },
+                        onFailure = { _uiState.value = UiState.Failure(it.message ?: "투표 정보를 기기에 저장하는 데 실패했습니다.") }
+                    ) },
+                onFailure = { _uiState.value = UiState.Failure(it.message ?: "Unknown error") }
+            )
         }
     }
 }

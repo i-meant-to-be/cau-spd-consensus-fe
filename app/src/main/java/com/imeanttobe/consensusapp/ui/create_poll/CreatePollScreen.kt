@@ -46,9 +46,9 @@ import com.imeanttobe.consensusapp.core.Constants.MIN_OPTIONS
 import com.imeanttobe.consensusapp.core.Constants.MIN_PARTICIPANTS
 import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.navigation.Route
+import com.imeanttobe.consensusapp.ui.common.InputItemDescription
 import com.imeanttobe.consensusapp.ui.create_poll.components.AddOptionDialog
 import com.imeanttobe.consensusapp.ui.create_poll.components.CreatePollScreenTopBar
-import com.imeanttobe.consensusapp.ui.common.InputItemDescription
 import com.imeanttobe.consensusapp.ui.create_poll.components.OptionChip
 import kotlinx.coroutines.launch
 

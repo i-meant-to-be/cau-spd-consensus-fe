@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.imeanttobe.consensusapp.core.Constants.MAX_OPTION_LENGTH
-import com.imeanttobe.consensusapp.core.Constants.MAX_TITLE_LENGTH
 
 @Composable
 fun AddOptionDialog(
