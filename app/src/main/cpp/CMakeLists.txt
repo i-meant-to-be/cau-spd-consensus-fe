@@ -37,23 +37,53 @@ add_subdirectory(SEAL)
 
 # --- 3. JNI 브릿지 라이브러리 생성 (Task 2 준비) ---
 
-# NDK의 로깅 라이브러리를 찾습니다. (C++에서 Log.d(...) 사용 시 필요)
-find_library(log-lib log)
-
 # "jni_bridge.cpp" 파일을 컴파일하여 "consensus_native"라는 이름의
 # .so (공유 라이브러리) 파일을 생성합니다.
 # (아직 jni_bridge.cpp 파일이 없으므로, 지금 바로 다음 단계에서 생성해야 합니다.)
 add_library(consensus_native SHARED
         JNIBridge.cpp)
 
-# "consensus_native" 라이브러리가 "SEAL" 라이브러리에 의존함을 명시합니다.
-# 또한 NDK의 Zlib과 log 라이브러리에도 연결(link)합니다.
-target_link_libraries(consensus_native
+if(ANDROID)
+    # NDK의 로깅 라이브러리를 찾습니다. (C++에서 Log.d(...) 사용 시 필요)
+    find_library(log-lib log)
+
+    # "consensus_native" 라이브러리가 "SEAL" 라이브러리에 의존함을 명시합니다.
+    # 또한 NDK의 Zlib과 log 라이브러리에도 연결(link)합니다.
+    target_link_libraries(consensus_native
+            PUBLIC
+            seal          # SEAL 라이브러리
+            ${z-lib} # NDK의 Zlib
+            ${log-lib}    # NDK의 Log
+    )
+else()
+    # [Case 2] Visual Studio (IntelliSense/편집 전용)
+    
+    # 1. C++ 표준 설정 (필수)
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+    # --------------------------------------------------------
+    # [핵심 변경] NDK STL 경로는 모두 제거합니다. 
+    # Visual Studio가 자신의 표준 라이브러리(vector, string)를 쓰게 둡니다.
+    # --------------------------------------------------------
+
+    # 3. SEAL 헤더 경로
+    # 구조: app/src/main/cpp/SEAL/native/src/seal/seal.h
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/SEAL/native/src")
+
+    # 4. JNI 헤더 경로 (JDK 활용)
+    # NDK 헤더 대신 JDK의 헤더를 쓰는 것이 VS 호환성이 훨씬 좋습니다.
+    # (본인의 JDK 버전에 맞게 경로를 확인해 주세요. 보통 아래 경로에 있습니다.)
+    # 또는 설치된 경로에 따라:
+    include_directories("C:/Binaries/Java/jdk-18.0.2.1/include")
+    include_directories("C:/Binaries/Java/jdk-18.0.2.1/include/win32")
+
+    # 5. SEAL 라이브러리 연결 (이름만 연결)
+    target_link_libraries(consensus_native
         PUBLIC
-        seal          # SEAL 라이브러리
-        ${z-lib} # NDK의 Zlib
-        ${log-lib}    # NDK의 Log
-)
+        seal
+    )
+endif()
 
 # 16 KB 호환성 강제 설정
 if(ANDROID_ABI STREQUAL "arm64-v8a" OR ANDROID_ABI STREQUAL "x86_64")
