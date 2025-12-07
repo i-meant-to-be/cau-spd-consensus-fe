@@ -1,22 +1,37 @@
 package com.imeanttobe.consensusapp.ui.create_poll
 
+import android.util.Base64
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.protobuf.kotlin.toByteString
+import com.imeanttobe.consensusapp.PollInfo
 import com.imeanttobe.consensusapp.core.Constants.MAX_OPTIONS
 import com.imeanttobe.consensusapp.core.Constants.MAX_OPTION_LENGTH
 import com.imeanttobe.consensusapp.core.Constants.MAX_PARTICIPANTS
 import com.imeanttobe.consensusapp.core.Constants.MAX_TITLE_LENGTH
 import com.imeanttobe.consensusapp.core.Constants.MIN_PARTICIPANTS
 import com.imeanttobe.consensusapp.core.UiState
+import com.imeanttobe.consensusapp.core.crypto.CryptoManager
+import com.imeanttobe.consensusapp.domain.repo.PollInfoItemsRepo
+import com.imeanttobe.consensusapp.domain.repo.PollRepo
+import com.imeanttobe.consensusapp.seal.NativeLib
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class CreatePollViewModel @Inject constructor() : ViewModel() {
+class CreatePollViewModel @Inject constructor(
+    private val pollRepo: PollRepo,
+    private val pollInfoItemsRepo: PollInfoItemsRepo,
+    private val cryptoManager: CryptoManager
+) : ViewModel() {
     private val _title = MutableStateFlow<String>("")
     val title: StateFlow<String> = _title
 
@@ -26,14 +41,22 @@ class CreatePollViewModel @Inject constructor() : ViewModel() {
     private val _newOption = MutableStateFlow<String>("")
     val newOption: StateFlow<String> = _newOption
 
+    private val _statusMessage = MutableStateFlow<String>("")
+    val statusMessage: StateFlow<String> = _statusMessage
+
     private val _numParticipants = MutableStateFlow<Int>(MIN_PARTICIPANTS)
     val numParticipants: StateFlow<Int> = _numParticipants
 
-    private val _uiState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
-    val uiState: StateFlow<UiState<Unit>> = _uiState
+    private val _uiState = MutableStateFlow<UiState<PollInfo>>(UiState.Idle)
+    val uiState: StateFlow<UiState<PollInfo>> = _uiState
 
     private val _dialogState = MutableStateFlow<Boolean>(false)
     val dialogState: StateFlow<Boolean> = _dialogState
+
+    fun resetUiState() {
+        _uiState.value = UiState.Idle
+        _statusMessage.value = ""
+    }
 
     fun setDialogState(state: Boolean) {
         _dialogState.value = state
@@ -82,7 +105,56 @@ class CreatePollViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun submit() {
-        // TODO: Submit poll to server
+    fun createPoll() {
+        _uiState.value = UiState.Loading
+
+        viewModelScope.launch {
+            // Prepare PK and SK
+            _statusMessage.value = "키 생성 중..."
+            val sealKeys = withContext(Dispatchers.IO) {
+                NativeLib.generateKeys()
+            }
+            if (sealKeys == null) {
+                _uiState.value = UiState.Failure("Failed to generate keys")
+                return@launch
+            }
+
+            // Create request body
+            _statusMessage.value = "투표 개최 요청 중..."
+            val encodedPk = Base64.encodeToString(sealKeys.pk, Base64.NO_WRAP)
+
+            // Send request
+            val response = pollRepo.createPoll(
+                title = title.value,
+                pk = encodedPk,
+                candidates = options.value.toList()
+            )
+
+            // Handle response
+            response.fold(
+                onSuccess = {  responseBody ->
+                    // Save poll info to local storage
+                    val encryptionResult = try {
+                        cryptoManager.encrypt(sealKeys.sk)
+                    } catch (e: Exception) {
+                        _uiState.value = UiState.Failure("Failed to encrypt secret key")
+                        return@launch
+                    }
+
+                    val newPollInfo = PollInfo.newBuilder()
+                        .setTitle(title.value)
+                        .setId(responseBody.id)
+                        .setPk(sealKeys.pk.toByteString())
+                        .setEncryptedSk(encryptionResult.ciphertext.toByteString())
+                        .setIv(encryptionResult.iv.toByteString())
+                        .build()
+
+                    pollInfoItemsRepo.addPollInfo(newPollInfo).fold(
+                        onSuccess = { _uiState.value = UiState.Success(newPollInfo) },
+                        onFailure = { _uiState.value = UiState.Failure(it.message ?: "투표 정보를 기기에 저장하는 데 실패했습니다.") }
+                    ) },
+                onFailure = { _uiState.value = UiState.Failure(it.message ?: "Unknown error") }
+            )
+        }
     }
 }
