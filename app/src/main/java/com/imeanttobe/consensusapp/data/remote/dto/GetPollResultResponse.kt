@@ -27,7 +27,7 @@ data class GetPollResultResponse(
             return GetPollResultResponse(
                 title = "Title",
                 id = 1,
-                candidates = listOf("Candidate 1", "Candidate 2"),
+                candidates = listOf("Candidate 1", "Candidate 2", "Candidate 3"),
                 votes = listOf(1, 2)
             )
         }
