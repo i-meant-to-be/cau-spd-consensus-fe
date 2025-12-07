@@ -17,7 +17,6 @@ using namespace seal;
 // Unique pointers
 static unique_ptr<SEALContext>  g_context;
 static unique_ptr<KeyGenerator> g_keygen;
-static unique_ptr<Encryptor>    g_encryptor;
 static unique_ptr<Decryptor>    g_decryptor;
 static unique_ptr<Evaluator>    g_evaluator;
 static unique_ptr<BatchEncoder> g_encoder;
@@ -92,7 +91,6 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobjec
         g_keygen->create_public_key(*g_public_key);
 
         // Create encryptor and decryptor
-        g_encryptor = make_unique<Encryptor>(*g_context, *g_public_key);
         g_decryptor = make_unique<Decryptor>(*g_context, *g_secret_key);
 
         // Serialize pk

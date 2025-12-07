@@ -23,7 +23,7 @@ import com.imeanttobe.consensusapp.core.findActivity
 @Composable
 fun VoteResultScreen(
     isVoteSuccess: Boolean,
-    errorMessage: String,
+    errorMessage: String?,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -32,7 +32,7 @@ fun VoteResultScreen(
         else Icons.Outlined.ErrorOutline
     val message =
         if (isVoteSuccess) "투표에 성공했어요!"
-        else "투표에 실패했어요. 오류 내용: $errorMessage"
+        else "투표에 실패했어요. 오류 내용: ${errorMessage ?: "알 수 없음"}"
 
     val handleTerminate: () -> Unit = {
         context.findActivity()?.finish()
@@ -50,7 +50,9 @@ fun VoteResultScreen(
                 imageVector = iconImageVector,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(64.dp).padding(bottom = 16.dp)
+                modifier = Modifier
+                    .size(64.dp)
+                    .padding(bottom = 16.dp)
             )
             Text(
                 text = message,
