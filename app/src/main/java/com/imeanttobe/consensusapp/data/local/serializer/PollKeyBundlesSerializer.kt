@@ -1,10 +1,10 @@
 package com.imeanttobe.consensusapp.data.local.serializer
+
 import android.content.Context
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import androidx.datastore.dataStore
-import com.imeanttobe.consensusapp.Id
 import com.imeanttobe.consensusapp.PollKeyBundles
 import java.io.InputStream
 import java.io.OutputStream
