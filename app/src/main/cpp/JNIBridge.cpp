@@ -60,8 +60,11 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_initContext(JNIEnv *env, jobject
         g_keygen = make_unique<KeyGenerator>(*g_context);
 
         return JNI_TRUE;
+    } catch (const exception &e) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Error in init: %s", e.what());
+        return JNI_FALSE;
     } catch (...) {
-        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Error in init");
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Unknown error in init");
         return JNI_FALSE;
     }
 }
