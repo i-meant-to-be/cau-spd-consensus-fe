@@ -23,8 +23,6 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_encrypt(JNIEnv *env, jobject, jl
 extern "C" JNIEXPORT jlongArray JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(JNIEnv *env, jobject, jbyteArray cipherBytes);
 
-/*
-// Load given PK on native side
-extern "C" JNIEXPORT void JNICALL
-Java_com_imeanttobe_consensusapp_seal_NativeLib_loadPublicKey(JNIEnv *env, jobject, jbyteArray pkBytes);
-*/
+// Adds two ciphertexts.
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_imeanttobe_consensusapp_seal_NativeLib_addCiphertexts(JNIEnv* env, jobject, jbyteArray cipherBytes1, jbyteArray cipherBytes2);

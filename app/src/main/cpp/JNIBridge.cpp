@@ -246,3 +246,59 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(
         return nullptr;
     }
 }
+
+// - Ciphertext addition function
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_imeanttobe_consensusapp_seal_NativeLib_addCiphertexts(
+    JNIEnv* env,
+    jobject,
+    jbyteArray cipherBytes1,
+    jbyteArray cipherBytes2) {
+    // Check whether context is initialized
+    if (!g_context || !g_evaluator) {
+        return nullptr;
+    }
+
+    try {
+        // --- 1. JNI ByteArray -> Ciphertext 역직렬화 (첫 번째) ---
+        jsize len1 = env->GetArrayLength(cipherBytes1);
+        jbyte* ptr1 = env->GetByteArrayElements(cipherBytes1, nullptr);
+        string serialized_data1(reinterpret_cast<char*>(ptr1), len1);
+        env->ReleaseByteArrayElements(cipherBytes1, ptr1, JNI_ABORT);
+
+        stringstream stream1(serialized_data1);
+        Ciphertext encrypted1;
+        encrypted1.load(*g_context, stream1);
+
+        // --- 2. JNI ByteArray -> Ciphertext 역직렬화 (두 번째) ---
+        jsize len2 = env->GetArrayLength(cipherBytes2);
+        jbyte* ptr2 = env->GetByteArrayElements(cipherBytes2, nullptr);
+        string serialized_data2(reinterpret_cast<char*>(ptr2), len2);
+        env->ReleaseByteArrayElements(cipherBytes2, ptr2, JNI_ABORT);
+
+        stringstream stream2(serialized_data2);
+        Ciphertext encrypted2;
+        encrypted2.load(*g_context, stream2);
+
+        // --- 3. 덧셈 연산 (Ciphertext + Ciphertext) ---
+        Ciphertext encrypted_result;
+        g_evaluator->add(encrypted1, encrypted2, encrypted_result);
+
+        // --- 4. 직렬화 (Ciphertext -> Byte Array) ---
+        stringstream result_stream;
+        encrypted_result.save(result_stream);
+        string serialized_result = result_stream.str();
+
+        jsize output_len = static_cast<jsize>(serialized_result.size());
+        jbyteArray result = env->NewByteArray(output_len);
+        env->SetByteArrayRegion(result, 0, output_len, reinterpret_cast<const jbyte*>(serialized_result.c_str()));
+
+        return result;
+    } catch (const exception& e) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Error in addCiphertexts: %s", e.what());
+        return nullptr;
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Unknown error in addCiphertexts");
+        return nullptr;
+    }
+}
