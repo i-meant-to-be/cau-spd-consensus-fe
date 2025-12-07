@@ -10,4 +10,5 @@ object NativeLib {
     external fun generateKeys(): SealKeys?
     external fun encrypt(inputVector: LongArray): ByteArray?
     external fun decrypt(cipherBytes: ByteArray): LongArray?
+    external fun addCiphertexts(cipherBytes1: ByteArray, cipherBytes2: ByteArray): ByteArray?
 }
