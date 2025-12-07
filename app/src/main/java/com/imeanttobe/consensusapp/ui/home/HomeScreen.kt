@@ -1,22 +1,25 @@
 package com.imeanttobe.consensusapp.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.HowToVote
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material.icons.outlined.NotificationImportant
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularWavyProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,15 +30,19 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.imeanttobe.consensusapp.core.UiState
+import com.imeanttobe.consensusapp.domain.model.PollUiModel
 import com.imeanttobe.consensusapp.navigation.Route
+import com.imeanttobe.consensusapp.ui.home.components.RecentPollCard
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
-    val recentPollItems = viewModel.recentPollItems.collectAsStateWithLifecycle()
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(modifier = modifier) { innerPadding ->
         Column(
@@ -86,15 +93,72 @@ fun HomeScreen(
 
             // Recent contents
             Text(
-                text = "최근 투표",
+                text = "최근 주최한 투표",
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.titleLarge,
             )
-            LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
-                // Temp code, will be going to be developed later
-                itemsIndexed(items = recentPollItems.value) { index, item ->
-                    Text(text = "인덱스 $index, 투표 $item")
+            when (uiState.value) {
+                is UiState.Success -> {
+                    if ((uiState.value as UiState.Success<List<PollUiModel>>).data.isEmpty()) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.NotificationImportant,
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp)
+                            )
+                            Text(
+                                text = "최근 투표가 없습니다.",
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth().weight(1f)
+                        ) {
+                            items(items = (uiState.value as UiState.Success<List<PollUiModel>>).data) { item ->
+                                RecentPollCard(
+                                    item = item,
+                                    onClick = { navController.navigate(Route.HostDashboardScreen(id = item.id)) },
+                                )
+                            }
+                        }
+                    }
+                }
+                is UiState.Failure -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxWidth().padding(16.dp)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth().padding(16.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.ErrorOutline,
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp)
+                            )
+                            Text(
+                                text = "오류 발생: ${(uiState.value as UiState.Failure).message}",
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    }
+                }
+                else -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxWidth().padding(16.dp)
+                    ) {
+                        CircularWavyProgressIndicator()
+                    }
                 }
             }
         }

@@ -16,14 +16,14 @@ sealed interface Route {
     data object DevRoute : Route
 
     @Serializable
-    data class HostDashboardScreen(val pollId: String) : Route
+    data class HostDashboardScreen(val id: Int) : Route
 
     @Serializable
-    data class VoteScreen(val pollId: String) : Route
+    data class VoteScreen(val id: Int) : Route
 
     @Serializable
-    data class WaitingScreen(val pollId: String) : Route
+    data class WaitingScreen(val id: Int) : Route
 
     @Serializable
-    data class ResultScreen(val pollId: String) : Route
+    data class ResultScreen(val id: Int) : Route
 }
