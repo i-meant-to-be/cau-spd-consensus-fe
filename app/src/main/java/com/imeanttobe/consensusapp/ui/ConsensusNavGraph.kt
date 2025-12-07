@@ -47,27 +47,27 @@ fun ConsensusNavGraph() {
             deepLinks =
                 listOf(
                     navDeepLink {
-                        uriPattern = "consensus://poll/{pollId}"
+                        uriPattern = "consensus://poll/{id}"
                     },
                 ),
         ) { backStackEntry ->
             val route: Route.VoteScreen = backStackEntry.toRoute()
-            VoteScreen(pollId = route.pollId)
+            VoteScreen(id = route.id)
         }
 
         composable<Route.ResultScreen> { backStackEntry ->
             val route: Route.ResultScreen = backStackEntry.toRoute()
-            ResultScreen(pollId = route.pollId)
+            ResultScreen(id = route.id)
         }
 
         composable<Route.HostDashboardScreen> { backStackEntry ->
             val route: Route.HostDashboardScreen = backStackEntry.toRoute()
-            HostDashboardScreen(pollId = route.pollId)
+            HostDashboardScreen(id = route.id)
         }
 
         composable<Route.WaitingScreen> { backStackEntry ->
             val route: Route.WaitingScreen = backStackEntry.toRoute()
-            WaitingScreen(pollId = route.pollId)
+            WaitingScreen(id = route.id)
         }
     }
 }

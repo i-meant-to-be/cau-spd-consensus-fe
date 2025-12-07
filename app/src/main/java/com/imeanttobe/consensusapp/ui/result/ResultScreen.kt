@@ -7,10 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun ResultScreen(pollId: String) {
+fun ResultScreen(id: Int) {
     Scaffold { innerPadding ->
         Text(
-            text = "Result Screen: $pollId",
+            text = "Result Screen: $id",
             modifier = Modifier.padding(innerPadding),
         )
     }

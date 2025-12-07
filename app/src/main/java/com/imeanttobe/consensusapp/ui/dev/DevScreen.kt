@@ -45,19 +45,19 @@ fun DevScreen(
                 Text(text = "Home")
             }
 
-            Button(onClick = { navController.navigate(Route.VoteScreen(pollId = "ID")) }) {
+            Button(onClick = { navController.navigate(Route.VoteScreen(id = 0)) }) {
                 Text(text = "Vote")
             }
 
-            Button(onClick = { navController.navigate(Route.ResultScreen(pollId = "ID")) }) {
+            Button(onClick = { navController.navigate(Route.ResultScreen(id = 0)) }) {
                 Text(text = "Result")
             }
 
-            Button(onClick = { navController.navigate(Route.WaitingScreen(pollId = "ID")) }) {
+            Button(onClick = { navController.navigate(Route.WaitingScreen(id = 0)) }) {
                 Text(text = "Waiting")
             }
 
-            Button(onClick = { navController.navigate(Route.HostDashboardScreen(pollId = "ID")) }) {
+            Button(onClick = { navController.navigate(Route.HostDashboardScreen(id = 0)) }) {
                 Text(text = "Host Dashboard")
             }
         }

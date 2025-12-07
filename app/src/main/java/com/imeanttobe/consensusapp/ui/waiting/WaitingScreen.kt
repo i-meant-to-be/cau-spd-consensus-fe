@@ -7,10 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun WaitingScreen(pollId: String) {
+fun WaitingScreen(id: Int) {
     Scaffold { innerPadding ->
         Text(
-            text = "Waiting Screen: $pollId",
+            text = "Waiting Screen: $id",
             modifier = Modifier.padding(innerPadding),
         )
     }
