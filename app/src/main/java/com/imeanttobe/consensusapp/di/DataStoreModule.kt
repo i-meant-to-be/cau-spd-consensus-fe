@@ -8,6 +8,7 @@ import com.imeanttobe.consensusapp.domain.repo.IdRepo
 import com.imeanttobe.consensusapp.data.repo.IdRepoImpl
 import com.imeanttobe.consensusapp.data.local.serializer.idDataStore
 import com.imeanttobe.consensusapp.data.local.serializer.pollInfoItemsDataStore
+import com.imeanttobe.consensusapp.data.repo.PollInfoItemsRepoImpl
 import com.imeanttobe.consensusapp.domain.repo.PollInfoItemsRepo
 import dagger.Binds
 import dagger.Module
@@ -36,10 +37,9 @@ abstract class DataStoreModule {
 
     @Binds
     @Singleton
-    abstract fun bindIdRepo(idRepoImpl: IdRepoImpl): IdRepo
+    abstract fun bindIdRepo(idRepo: IdRepoImpl): IdRepo
 
     @Binds
     @Singleton
-    abstract fun bindPollInfoItemsRepo(pollInfoItemsRepoImpl: PollInfoItemsRepo): PollInfoItemsRepo
-
+    abstract fun bindPollInfoItemsRepo(pollInfoItemsRepo: PollInfoItemsRepoImpl): PollInfoItemsRepo
 }
