@@ -7,4 +7,5 @@ object NativeLib {
 
     external fun stringFromJNI(): String
     external fun initContext(): Boolean
+    external fun generateKeys(): SealKeys?
 }
