@@ -61,6 +61,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_initContext(JNIEnv *env, jobject
         g_context = std::move(context);
         g_evaluator = make_unique<Evaluator>(*g_context);
         g_keygen = make_unique<KeyGenerator>(*g_context);
+        g_encoder = make_unique<BatchEncoder>(*g_context);
 
         return JNI_TRUE;
     } catch (const exception &e) {
@@ -162,7 +163,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_encrypt(
         }
 
         // JNI 메모리 해제 (데이터 복사했으므로 즉시 해제)
-        env->ReleaseLongArrayElements(input_vector, ptr, 0);
+        env->ReleaseLongArrayElements(input_vector, ptr, JNI_ABORT);
 
         // --- 2. 인코딩 (Vector -> Plaintext) ---
         Plaintext plain;
