@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.navigation.Route
+import com.imeanttobe.consensusapp.ui.home.components.RecentPollCard
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -106,7 +107,7 @@ fun HomeScreen(
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth().padding(16.dp)
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.NotificationImportant,
@@ -119,10 +120,17 @@ fun HomeScreen(
                             )
                         }
                     } else {
-                        LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
-                            // Temp code, will be going to be developed later
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth().weight(1f)
+                        ) {
                             itemsIndexed(items = recentPollItems.value) { index, item ->
-                                Text(text = "인덱스 $index, 투표 $item")
+                                val isLastItem = index == recentPollItems.value.size - 1
+
+                                RecentPollCard(
+                                    item = item,
+                                    onClick = { navController.navigate(Route.HostDashboardScreen(id = item.id)) },
+                                )
                             }
                         }
                     }
