@@ -32,14 +32,14 @@ object NativeLib {
 
     /**
      * 암호문을 평문으로 복호화합니다.
-     * @param cipherBytes 암호문 (Base64 디코딩된 바이트 배열)
+     * @param cipherBytes 암호문
      * @return 복호화된 평문 (LongArray?)
      */
     external fun decrypt(cipherBytes: ByteArray): LongArray?
 
     /**
      * 두 개의 암호문을 동형암호 덧셈합니다.
-     * @param cipherBytes1 첫 번째 암호문 (Base64 디코딩된 바이트 배열)
+     * @param cipherBytes1 첫 번째 암호문
      * @param cipherBytes2 두 번째 암호문
      * @return 합산된 암호문 (ByteArray?)
      */
