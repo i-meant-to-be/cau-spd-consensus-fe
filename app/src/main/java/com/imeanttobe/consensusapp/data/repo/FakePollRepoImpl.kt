@@ -10,6 +10,7 @@ import kotlinx.coroutines.delay
 class FakePollRepoImpl : PollRepo {
     override suspend fun createPoll(
         title: String,
+        pk: String,
         candidates: List<String>
     ): Result<CreatePollResponse> {
         return Result.success(CreatePollResponse.getFakeData())

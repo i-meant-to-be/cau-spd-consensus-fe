@@ -5,9 +5,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Edit
@@ -22,8 +25,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -37,10 +45,12 @@ import com.imeanttobe.consensusapp.core.Constants.MAX_TITLE_LENGTH
 import com.imeanttobe.consensusapp.core.Constants.MIN_OPTIONS
 import com.imeanttobe.consensusapp.core.Constants.MIN_PARTICIPANTS
 import com.imeanttobe.consensusapp.core.UiState
+import com.imeanttobe.consensusapp.navigation.Route
+import com.imeanttobe.consensusapp.ui.common.InputItemDescription
 import com.imeanttobe.consensusapp.ui.create_poll.components.AddOptionDialog
 import com.imeanttobe.consensusapp.ui.create_poll.components.CreatePollScreenTopBar
-import com.imeanttobe.consensusapp.ui.common.InputItemDescription
 import com.imeanttobe.consensusapp.ui.create_poll.components.OptionChip
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -52,13 +62,16 @@ fun CreatePollScreen(
     val title = viewModel.title.collectAsStateWithLifecycle()
     val numParticipants = viewModel.numParticipants.collectAsStateWithLifecycle()
     val options = viewModel.options.collectAsStateWithLifecycle()
+    val statusMessage = viewModel.statusMessage.collectAsStateWithLifecycle()
     val newOption = viewModel.newOption.collectAsStateWithLifecycle()
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val dialogState = viewModel.dialogState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     val handleBackClick: () -> Unit = { navController.popBackStack() }
     val handleSliderChange: (Float) -> Unit = { sliderValue -> viewModel.setNumParticipants(sliderValue.toInt()) }
-    val handleSubmit: () -> Unit = { viewModel.submit() }
+    val handleSubmit: () -> Unit = { viewModel.createPoll() }
     val handleOpenDialog: () -> Unit = { viewModel.setDialogState(true) }
     val handleDialogConfirm: () -> Unit = {
         viewModel.appendOption(newOption.value)
@@ -79,8 +92,29 @@ fun CreatePollScreen(
         if (title.value.length < MAX_TITLE_LENGTH) MaterialTheme.colorScheme.primary
         else MaterialTheme.colorScheme.error
 
+    LaunchedEffect(key1 = uiState.value) {
+        when (val uiStateValue = uiState.value) {
+            is UiState.Success -> {
+                val pollInfo = uiStateValue.data
+                navController.navigate(Route.HostDashboardScreen(id = pollInfo.id)) {
+                    popUpTo(Route.CreatePollScreen) { inclusive = true }
+                }
+            }
+            is UiState.Failure -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "투표 생성 실패. 원인: ${uiStateValue.message}"
+                    )
+                    viewModel.resetUiState()
+                }
+            }
+            else -> {}
+        }
+    }
+
     Scaffold(
         topBar = { CreatePollScreenTopBar(onBackClicked = handleBackClick) },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = modifier
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
@@ -171,9 +205,20 @@ fun CreatePollScreen(
                 modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(16.dp)
             ) {
                 if (uiState.value is UiState.Loading) {
-                    CircularWavyProgressIndicator()
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        CircularWavyProgressIndicator(modifier = Modifier.size(ButtonDefaults.MediumIconSize))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = statusMessage.value,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 } else {
-                    Text(text = "투표 개최하기")
+                    Text(text = "개최하기")
                 }
             }
         }

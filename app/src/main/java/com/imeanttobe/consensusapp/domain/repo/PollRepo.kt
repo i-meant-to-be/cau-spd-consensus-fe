@@ -11,7 +11,6 @@ interface PollRepo {
     suspend fun finishPoll(id: Int): Result<Unit>
     suspend fun getPollResult(id: Int): Result<GetPollResultResponse>
     suspend fun submitPollResult(id: Int, votes: List<Int>): Result<Unit>
-    // Public key will be given in actual impl
-    suspend fun createPoll(title: String, candidates: List<String>): Result<CreatePollResponse>
+    suspend fun createPoll(title: String, pk: String, candidates: List<String>): Result<CreatePollResponse>
     suspend fun getPollStatus(id: Int): Result<GetPollStatusResponse>
 }

@@ -86,10 +86,9 @@ class PollRepoImpl @Inject constructor(
 
     override suspend fun createPoll(
         title: String,
+        pk: String,
         candidates: List<String>
     ): Result<CreatePollResponse> {
-        val pk = "" // TODO: have to generate pk here
-
         return try {
             val request = CreatePollRequest(title, pk, candidates)
             val response = pollApi.createPoll(request)
