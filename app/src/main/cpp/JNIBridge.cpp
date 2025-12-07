@@ -151,6 +151,12 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_encrypt(
         return nullptr;
     }
 
+	// Check whether input array is valid
+	if (inputVector == nullptr) {
+		__android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input vector is null.");
+		return nullptr;
+	}
+
     try {
         // --- 1. JNI jlongArray -> C++ vector<int64_t> 변환 ---
         jsize len = env->GetArrayLength(inputVector);
@@ -205,6 +211,12 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(
         return nullptr;
     }
 
+	// Check whether input byte array is valid
+	if (cipherBytes == nullptr) {
+		__android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input ciphertext byte array is null.");
+		return nullptr;
+	}
+
     try {
         // --- 1. JNI ByteArray -> Ciphertext 역직렬화 ---
         jsize len = env->GetArrayLength(cipherBytes);
@@ -243,6 +255,67 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(
         return nullptr;
     } catch (...) {
         __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Unknown error in decrypt");
+        return nullptr;
+    }
+}
+
+// - Ciphertext addition function
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_imeanttobe_consensusapp_seal_NativeLib_addCiphertexts(
+    JNIEnv* env,
+    jobject,
+    jbyteArray cipherBytes1,
+    jbyteArray cipherBytes2) {
+    // Check whether context is initialized
+    if (!g_context || !g_evaluator) {
+        return nullptr;
+    }
+
+	// Check whether input byte arrays are valid
+	if (cipherBytes1 == nullptr || cipherBytes2 == nullptr) {
+		__android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input ciphertext byte arrays are null.");
+		return nullptr;
+	}
+
+    auto deserialize_ciphertext = [&](jbyteArray cipherBytes, Ciphertext& ct) {
+		// JNI ByteArray -> Ciphertext 역직렬화
+		jsize len = env->GetArrayLength(cipherBytes);
+		jbyte* ptr = env->GetByteArrayElements(cipherBytes, nullptr);
+		string serialized_data(reinterpret_cast<char*>(ptr), len);
+		env->ReleaseByteArrayElements(cipherBytes, ptr, JNI_ABORT);
+
+		// 결과 Ciphertext에 로드
+		stringstream stream(serialized_data);
+		ct.load(*g_context, stream);
+        };
+
+    try {
+        // --- 1. JNI ByteArray -> Ciphertext 역직렬화 
+        Ciphertext encrypted1;
+		deserialize_ciphertext(cipherBytes1, encrypted1);
+
+        Ciphertext encrypted2;
+        deserialize_ciphertext(cipherBytes2, encrypted2);
+
+        // --- 2. 덧셈 연산 (Ciphertext + Ciphertext) ---
+        Ciphertext encrypted_result;
+        g_evaluator->add(encrypted1, encrypted2, encrypted_result);
+
+        // --- 3. 직렬화 (Ciphertext -> Byte Array) ---
+        stringstream result_stream;
+        encrypted_result.save(result_stream);
+        string serialized_result = result_stream.str();
+
+        jsize output_len = static_cast<jsize>(serialized_result.size());
+        jbyteArray result = env->NewByteArray(output_len);
+        env->SetByteArrayRegion(result, 0, output_len, reinterpret_cast<const jbyte*>(serialized_result.c_str()));
+
+        return result;
+    } catch (const exception& e) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Error in addCiphertexts: %s", e.what());
+        return nullptr;
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Unknown error in addCiphertexts");
         return nullptr;
     }
 }
