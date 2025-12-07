@@ -151,6 +151,12 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_encrypt(
         return nullptr;
     }
 
+	// Check whether input array is valid
+	if (inputVector == nullptr) {
+		__android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input vector is null.");
+		return nullptr;
+	}
+
     try {
         // --- 1. JNI jlongArray -> C++ vector<int64_t> 변환 ---
         jsize len = env->GetArrayLength(inputVector);
@@ -204,6 +210,12 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(
     if (!g_context || !g_encoder || !g_decryptor) {
         return nullptr;
     }
+
+	// Check whether input byte array is valid
+	if (cipherBytes == nullptr) {
+		__android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input ciphertext byte array is null.");
+		return nullptr;
+	}
 
     try {
         // --- 1. JNI ByteArray -> Ciphertext 역직렬화 ---
@@ -259,6 +271,12 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_addCiphertexts(
         return nullptr;
     }
 
+	// Check whether input byte arrays are valid
+	if (cipherBytes1 == nullptr || cipherBytes2 == nullptr) {
+		__android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input ciphertext byte arrays are null.");
+		return nullptr;
+	}
+
     auto deserialize_ciphertext = [&](jbyteArray cipherBytes, Ciphertext& ct) {
 		// JNI ByteArray -> Ciphertext 역직렬화
 		jsize len = env->GetArrayLength(cipherBytes);
@@ -277,7 +295,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_addCiphertexts(
 		deserialize_ciphertext(cipherBytes1, encrypted1);
 
         Ciphertext encrypted2;
-		deserialize_ciphertext(cipherBytes2, encrypted2);
+        deserialize_ciphertext(cipherBytes2, encrypted2);
 
         // --- 2. 덧셈 연산 (Ciphertext + Ciphertext) ---
         Ciphertext encrypted_result;
