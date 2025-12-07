@@ -259,32 +259,31 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_addCiphertexts(
         return nullptr;
     }
 
+    auto deserialize_ciphertext = [&](jbyteArray cipherBytes, Ciphertext& ct) {
+		// JNI ByteArray -> Ciphertext 역직렬화
+		jsize len = env->GetArrayLength(cipherBytes);
+		jbyte* ptr = env->GetByteArrayElements(cipherBytes, nullptr);
+		string serialized_data(reinterpret_cast<char*>(ptr), len);
+		env->ReleaseByteArrayElements(cipherBytes, ptr, JNI_ABORT);
+
+		// 결과 Ciphertext에 로드
+		stringstream stream(serialized_data);
+		ct.load(*g_context, stream);
+        };
+
     try {
-        // --- 1. JNI ByteArray -> Ciphertext 역직렬화 (첫 번째) ---
-        jsize len1 = env->GetArrayLength(cipherBytes1);
-        jbyte* ptr1 = env->GetByteArrayElements(cipherBytes1, nullptr);
-        string serialized_data1(reinterpret_cast<char*>(ptr1), len1);
-        env->ReleaseByteArrayElements(cipherBytes1, ptr1, JNI_ABORT);
-
-        stringstream stream1(serialized_data1);
+        // --- 1. JNI ByteArray -> Ciphertext 역직렬화 
         Ciphertext encrypted1;
-        encrypted1.load(*g_context, stream1);
+		deserialize_ciphertext(cipherBytes1, encrypted1);
 
-        // --- 2. JNI ByteArray -> Ciphertext 역직렬화 (두 번째) ---
-        jsize len2 = env->GetArrayLength(cipherBytes2);
-        jbyte* ptr2 = env->GetByteArrayElements(cipherBytes2, nullptr);
-        string serialized_data2(reinterpret_cast<char*>(ptr2), len2);
-        env->ReleaseByteArrayElements(cipherBytes2, ptr2, JNI_ABORT);
-
-        stringstream stream2(serialized_data2);
         Ciphertext encrypted2;
-        encrypted2.load(*g_context, stream2);
+		deserialize_ciphertext(cipherBytes2, encrypted2);
 
-        // --- 3. 덧셈 연산 (Ciphertext + Ciphertext) ---
+        // --- 2. 덧셈 연산 (Ciphertext + Ciphertext) ---
         Ciphertext encrypted_result;
         g_evaluator->add(encrypted1, encrypted2, encrypted_result);
 
-        // --- 4. 직렬화 (Ciphertext -> Byte Array) ---
+        // --- 3. 직렬화 (Ciphertext -> Byte Array) ---
         stringstream result_stream;
         encrypted_result.save(result_stream);
         string serialized_result = result_stream.str();
