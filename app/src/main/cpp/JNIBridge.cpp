@@ -138,3 +138,110 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobjec
         return nullptr;
     }
 }
+
+// - Encryption function
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_imeanttobe_consensusapp_seal_NativeLib_encrypt(
+        JNIEnv *env,
+        jobject,
+        jlongArray input_vector) {
+    // Check whether context is initialized
+    if (!g_context || !g_encoder || !g_encryptor) {
+        return nullptr;
+    }
+
+    try {
+        // --- 1. JNI jlongArray -> C++ vector<int64_t> 변환 ---
+        jsize len = env->GetArrayLength(input_vector);
+        jlong* ptr = env->GetLongArrayElements(input_vector, 0);
+
+        // 입력 데이터를 SEAL이 처리할 수 있는 벡터로 복사
+        vector<int64_t> pod_matrix(len);
+        for (int i = 0; i < len; i++) {
+            pod_matrix[i] = ptr[i];
+        }
+
+        // JNI 메모리 해제 (데이터 복사했으므로 즉시 해제)
+        env->ReleaseLongArrayElements(input_vector, ptr, 0);
+
+        // --- 2. 인코딩 (Vector -> Plaintext) ---
+        Plaintext plain;
+        // BatchEncoder가 벡터를 다항식 슬롯에 배치합니다.
+        // 나머지 슬롯은 자동으로 0으로 채워집니다.
+        g_encoder->encode(pod_matrix, plain);
+
+        // --- 3. 암호화 (Plaintext -> Ciphertext) ---
+        Ciphertext encrypted;
+        g_encryptor->encrypt(plain, encrypted);
+
+        // --- 4. 직렬화 (Ciphertext -> Byte Array) ---
+        stringstream stream;
+        encrypted.save(stream);
+        string serialized_data = stream.str();
+
+        jsize output_len = static_cast<jsize>(serialized_data.size());
+        jbyteArray result = env->NewByteArray(output_len);
+        env->SetByteArrayRegion(result, 0, output_len, reinterpret_cast<const jbyte*>(serialized_data.c_str()));
+
+        return result;
+    } catch (const exception &e) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Error in encrypt: %s", e.what());
+        return nullptr;
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Unknown error in encrypt");
+        return nullptr;
+    }
+}
+
+// - Decryption function
+extern "C" JNIEXPORT jlongArray JNICALL
+Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(
+        JNIEnv *env,
+        jobject,
+        jbyteArray cipher_bytes) {
+    // Check whether context is initialized
+    if (!g_context || !g_encoder || !g_decryptor) {
+        return nullptr;
+    }
+
+    try {
+        // --- 1. JNI ByteArray -> Ciphertext 역직렬화 ---
+        jsize len = env->GetArrayLength(cipher_bytes);
+        jbyte *ptr = env->GetByteArrayElements(cipher_bytes, nullptr);
+
+        string serialized_data(reinterpret_cast<char *>(ptr), len);
+        env->ReleaseByteArrayElements(cipher_bytes, ptr, JNI_ABORT); // JNI_ABORT: 수정 안 했으므로 복사본 버림
+
+        stringstream stream(serialized_data);
+        Ciphertext encrypted;
+        encrypted.load(*g_context, stream);
+
+        // --- 2. 복호화 (Ciphertext -> Plaintext) ---
+        Plaintext plain;
+        g_decryptor->decrypt(encrypted, plain);
+
+        // --- 3. 디코딩 (Plaintext -> Vector<int64_t>) ---
+        vector<int64_t> pod_result;
+        g_encoder->decode(plain, pod_result);
+
+        // --- 4. C++ Vector -> JNI jlongArray 변환 ---
+        // SEAL은 항상 슬롯 개수만큼(예: 4096개) 전체 벡터를 반환합니다.
+        // 우리는 앞부분의 유효한 데이터만 필요하겠지만,
+        // C++ 단에서는 길이를 모르므로 전체를 반환하고 Kotlin에서 자르는 게 안전합니다.
+
+        // (최적화를 위해 최대 반환 크기를 제한하고 싶다면 여기서 조정 가능)
+        jsize result_len = static_cast<jsize>(pod_result.size());
+        jlongArray result = env->NewLongArray(result_len);
+
+        // vector 데이터는 메모리에 연속적으로 있으므로 바로 복사 가능 (int64_t == jlong)
+        env->SetLongArrayRegion(result, 0, result_len, reinterpret_cast<const jlong *>(pod_result.data()));
+
+        return result;
+    } catch (const exception &e) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Error in decrypt: %s", e.what());
+        return nullptr;
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Unknown error in decrypt");
+        return nullptr;
+    }
+}

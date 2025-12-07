@@ -15,6 +15,14 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_initContext(JNIEnv *env, jobject
 extern "C" JNIEXPORT jobject JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobject);
 
+// Encrypt 2~3 length vector
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_imeanttobe_consensusapp_seal_NativeLib_encrypt(JNIEnv *env, jobject, jlongArray inputVector);
+
+// Decrypt 2~3 length vector
+extern "C" JNIEXPORT jlongArray JNICALL
+Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(JNIEnv *env, jobject, jbyteArray cipherBytes);
+
 /*
 // Load given PK on native side
 extern "C" JNIEXPORT void JNICALL
