@@ -18,4 +18,8 @@ data class EncryptionResult(
         result = 31 * result + iv.contentHashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "EncryptionResult(ciphertext=${ciphertext.contentToString()} bytes, iv=${iv.contentToString()} bytes)"
+    }
 }
