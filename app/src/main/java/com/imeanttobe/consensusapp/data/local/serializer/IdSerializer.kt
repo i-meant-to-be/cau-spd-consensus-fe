@@ -9,7 +9,7 @@ import com.imeanttobe.consensusapp.Id
 import java.io.InputStream
 import java.io.OutputStream
 
-const val FILE_NAME = "id.pb"
+const val FILE_NAME_ID = "id.pb"
 
 object IdSerializer : Serializer<Id> {
     override val defaultValue: Id
@@ -29,6 +29,6 @@ object IdSerializer : Serializer<Id> {
 }
 
 val Context.idDataStore: DataStore<Id> by dataStore(
-    fileName = FILE_NAME,
+    fileName = FILE_NAME_ID,
     serializer = IdSerializer
 )

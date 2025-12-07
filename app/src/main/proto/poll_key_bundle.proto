@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package com.imeanttobe.consensusapp;
+
+option java_package = "com.imeanttobe.consensusapp";
+option java_multiple_files = true;
+
+message PollKeyBundle {
+  int32 id = 1;
+  bytes pk = 2;
+  bytes encrypted_sk = 3;
+  bytes iv = 4;
+}
+
+message PollKeyBundles {
+  repeated PollKeyBundle bundles = 1;
+}
