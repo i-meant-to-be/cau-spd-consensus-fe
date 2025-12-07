@@ -1,8 +1,22 @@
 #pragma once
-#include <string>
 #include <jni.h>
 
+// Prefix: Java_com_imeanttobe_consensusapp_seal_NativeLib_
+
+// Test function
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_imeanttobe_consensusapp_seal_NativeLib_stringFromJNI(
-        JNIEnv *env,
-        jobject);
+Java_com_imeanttobe_consensusapp_seal_NativeLib_stringFromJNI(JNIEnv *env, jobject);
+
+// Init contexts and create instances
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_imeanttobe_consensusapp_seal_NativeLib_initContext(JNIEnv *env, jobject);
+
+/*
+// Create PK and SK
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobject);
+
+// Load given PK on native side
+extern "C" JNIEXPORT void JNICALL
+Java_com_imeanttobe_consensusapp_seal_NativeLib_loadPublicKey(JNIEnv *env, jobject, jbyteArray pkBytes);
+*/

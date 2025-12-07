@@ -1,6 +1,5 @@
 package com.imeanttobe.consensusapp.ui.splash
 
-import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +37,7 @@ fun SplashScreen(
 
     val splashState = viewModel.splashState.collectAsStateWithLifecycle()
     val dialogState = viewModel.dialogState.collectAsStateWithLifecycle()
+    val loadingMessage = viewModel.loadingMessage.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = splashState.value) {
         if (splashState.value is UiState.Success) {
@@ -64,11 +64,17 @@ fun SplashScreen(
                 text = "Consensus",
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(bottom = 16.dp)
             )
 
             // Loading indicator
-            CircularWavyProgressIndicator()
+            CircularWavyProgressIndicator(modifier = Modifier.padding(vertical = 16.dp))
+
+            // Loading message
+            Text(
+                text = loadingMessage.value,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodySmall,
+            )
         }
     }
 
