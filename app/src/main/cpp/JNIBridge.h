@@ -12,7 +12,7 @@ extern "C" JNIEXPORT jboolean JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_initContext(JNIEnv *env, jobject);
 
 // Create PK and SK
-extern "C" JNIEXPORT jbyteArray JNICALL
+extern "C" JNIEXPORT jobject JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobject);
 
 /*

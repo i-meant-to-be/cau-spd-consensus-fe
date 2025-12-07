@@ -24,6 +24,9 @@ static unique_ptr<BatchEncoder> g_encoder;
 static unique_ptr<PublicKey>    g_public_key;
 static unique_ptr<SecretKey>    g_secret_key;
 
+// Constants
+static const string PATH_SEAL_KEYS_CLASS = "com/imeanttobe/consensusapp/seal/SealKeys";
+
 // JNI Functions
 // - Sample function
 extern "C" JNIEXPORT jstring JNICALL
@@ -70,7 +73,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_initContext(JNIEnv *env, jobject
 }
 
 // - Key generation function
-extern "C" JNIEXPORT jbyteArray JNICALL
+extern "C" JNIEXPORT jobject JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobject) {
     if (!g_context) {
         return nullptr;
@@ -89,16 +92,34 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobjec
         g_encryptor = make_unique<Encryptor>(*g_context, *g_public_key);
         g_decryptor = make_unique<Decryptor>(*g_context, *g_secret_key);
 
-        // Serialize keys
-        stringstream data_stream;
-        g_public_key->save(data_stream);
-        string serialized_key = data_stream.str();
+        // Serialize pk
+        stringstream pk_stream;
+        g_public_key->save(pk_stream);
+        string serialized_pk = pk_stream.str();
 
-        // Convert to jbyteArray
-        jbyteArray result = env->NewByteArray(static_cast<jsize>(serialized_key.size()));
-        env->SetByteArrayRegion(result, 0, serialized_key.size(), reinterpret_cast<const jbyte*>(serialized_key.c_str()));
+        // Convert pk to jbyteArray
+        jbyteArray pk_bytes = env->NewByteArray(static_cast<jsize>(serialized_pk.size()));
+        env->SetByteArrayRegion(pk_bytes, 0, static_cast<jsize>(serialized_pk.size()), reinterpret_cast<const jbyte*>(serialized_pk.c_str()));
 
-        return result;
+        // Serialize sk
+        stringstream sk_stream;
+        g_secret_key->save(sk_stream);
+        string serialized_sk = sk_stream.str();
+
+        // Convert sk to jbyteArray
+        jbyteArray sk_bytes = env->NewByteArray(static_cast<jsize>(serialized_sk.size()));
+        env->SetByteArrayRegion(sk_bytes, 0, static_cast<jsize>(serialized_sk.size()), reinterpret_cast<const jbyte*>(serialized_sk.c_str()));
+
+        // Find SealKeys class
+        jclass seal_keys_class = env->FindClass(PATH_SEAL_KEYS_CLASS.c_str());
+
+        // Find constructor
+        jmethodID constructor = env->GetMethodID(seal_keys_class, "<init>", "([B[B)V");
+
+        // Create Java object
+        jobject seal_keys = env->NewObject(seal_keys_class, constructor, pk_bytes, sk_bytes);
+
+        return seal_keys;
     } catch (const exception &e) {
         __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Error in generateKeys: %s", e.what());
         return nullptr;
