@@ -23,7 +23,10 @@ data class GetPollResponse(
     val candidates: List<String>,
 
     @SerializedName("pk")
-    val pk: String
+    val pk: String,
+
+    @SerializedName("isDone")
+    val isDone: Boolean
 ) {
     companion object {
         fun getFakeData(): GetPollResponse {
@@ -40,7 +43,8 @@ data class GetPollResponse(
                 title = "Title",
                 id = 1,
                 candidates = listOf("Candidate 1", "Candidate 2", "Candidate 3"),
-                pk = encodedPk
+                pk = encodedPk,
+                isDone = false
             )
         }
     }
