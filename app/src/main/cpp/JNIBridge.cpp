@@ -221,19 +221,32 @@ extern "C" JNIEXPORT jlongArray JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(
         JNIEnv *env,
         jobject,
-        jbyteArray cipherBytes) {
+        jbyteArray cipherBytes,
+        jbyteArray secretKeyBytes) {
     // Check whether context is initialized
-    if (!g_context || !g_encoder || !g_decryptor) {
+    if (!g_context || !g_encoder) {
         return nullptr;
     }
 
 	// Check whether input byte array is valid
-	if (cipherBytes == nullptr) {
+	if (cipherBytes == nullptr || secretKeyBytes == nullptr) {
 		__android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input ciphertext byte array is null.");
 		return nullptr;
 	}
 
     try {
+        // --- 0. 비밀 키 로드 (ByteArray -> SecretKey) ---
+        jsize sk_len = env->GetArrayLength(secretKeyBytes);
+        jbyte* sk_ptr = env->GetByteArrayElements(secretKeyBytes, nullptr);
+        string sk_str(reinterpret_cast<char*>(sk_ptr), sk_len);
+        env->ReleaseByteArrayElements(secretKeyBytes, sk_ptr, JNI_ABORT);
+
+        stringstream sk_stream(sk_str);
+        SecretKey secret_key;
+        secret_key.load(*g_context, sk_stream);
+
+        Decryptor local_decryptor(*g_context, secret_key);
+
         // --- 1. JNI ByteArray -> Ciphertext 역직렬화 ---
         jsize len = env->GetArrayLength(cipherBytes);
         jbyte *ptr = env->GetByteArrayElements(cipherBytes, nullptr);
@@ -247,7 +260,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(
 
         // --- 2. 복호화 (Ciphertext -> Plaintext) ---
         Plaintext plain;
-        g_decryptor->decrypt(encrypted, plain);
+        local_decryptor.decrypt(encrypted, plain);
 
         // --- 3. 디코딩 (Plaintext -> Vector<int64_t>) ---
         vector<int64_t> pod_result;
