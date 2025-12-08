@@ -89,7 +89,8 @@ class PollFinishViewModel @Inject constructor(
      * 6. 인코딩된 리스트를 암호화된 상태로 모두 더한다.
      * 7. 더한 결과를 SK로 복호화하여 최종 투표 결과를 계산한다.
      * 8. 최종 투표 결과를 서버에 전송한다.
-     * 9. 전송이 성공적으로 완료되었다면 투표 결과 화면 PollResultScreen으로 이동한다.
+     * 9. 전송이 성공적으로 완료되었다면 최근 투표 기록에서 해당 투표를 지운다.
+     * 10. 투표 결과 화면 PollResultScreen으로 이동한다.
      * @param id 투표의 ID
      * @param encryptedVotes 암호화된 투표 값 리스트
      */
@@ -147,6 +148,14 @@ class PollFinishViewModel @Inject constructor(
                         withContext(Dispatchers.Main) {
                             submitPollResultRequest.fold(
                                 onSuccess = { responseBody ->
+                                    // 9. Delete poll from PollInfoItemsRepo
+                                    val removeRequest = pollInfoItemsRepo.removePollInfo(id)
+                                    if (removeRequest.isFailure) {
+                                        _submitPollResultUiState.value = UiState.Failure(removeRequest.exceptionOrNull()?.message ?: "Unknown error")
+                                        return@withContext
+                                    }
+
+                                    // 10. Move to result screen
                                     _submitPollResultUiState.value = UiState.Success(responseBody)
                                     _statusMessage.value = "투표 마감 완료!"
                                 },
