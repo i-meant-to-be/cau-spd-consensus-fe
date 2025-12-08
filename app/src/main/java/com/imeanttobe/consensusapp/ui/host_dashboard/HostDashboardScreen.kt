@@ -262,7 +262,7 @@ fun HostDashboardScreen(
                         }
 
                         Column(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth().weight(1f)
                         ) {
                             Text(
                                 text = "투표 코드 관리",
@@ -326,7 +326,6 @@ fun HostDashboardScreen(
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
                             ) {
                                 CircularWavyProgressIndicator(modifier = Modifier.size(ButtonDefaults.MediumIconSize))
                                 Text(
