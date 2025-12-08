@@ -12,7 +12,7 @@ import com.imeanttobe.consensusapp.ui.create_poll.CreatePollScreen
 import com.imeanttobe.consensusapp.ui.dev.DevScreen
 import com.imeanttobe.consensusapp.ui.home.HomeScreen
 import com.imeanttobe.consensusapp.ui.host_dashboard.HostDashboardScreen
-import com.imeanttobe.consensusapp.ui.result.ResultScreen
+import com.imeanttobe.consensusapp.ui.poll_result.PollResultScreen
 import com.imeanttobe.consensusapp.ui.splash.SplashScreen
 import com.imeanttobe.consensusapp.ui.vote.VoteScreen
 import com.imeanttobe.consensusapp.ui.vote_result.VoteResultScreen
@@ -58,7 +58,7 @@ fun ConsensusNavGraph() {
 
         composable<Route.ResultScreen> { backStackEntry ->
             val route: Route.ResultScreen = backStackEntry.toRoute()
-            ResultScreen(id = route.id)
+            PollResultScreen(id = route.id)
         }
 
         composable<Route.VoteResultScreen> { backStackEntry ->
