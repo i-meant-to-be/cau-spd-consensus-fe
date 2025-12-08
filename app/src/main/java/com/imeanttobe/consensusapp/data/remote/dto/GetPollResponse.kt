@@ -11,6 +11,7 @@ import com.imeanttobe.consensusapp.seal.NativeLib
  * @property id The ID of the poll.
  * @property candidates The list of candidates for the poll.
  * @property pk The public key of the poll.
+ * @property isDone Whether the poll is done or not.
  */
 data class GetPollResponse(
     @SerializedName("title")

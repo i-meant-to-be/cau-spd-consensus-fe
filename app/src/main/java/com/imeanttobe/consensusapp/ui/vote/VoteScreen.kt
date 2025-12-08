@@ -71,7 +71,8 @@ fun VoteScreen(
                 val response = pollState.data
                 if (response.isDone) {
                     navController.navigate(Route.PollResultScreen(id = id)) {
-                        popUpTo(Route.VoteScreen) { inclusive = true }
+                        popUpTo<Route.VoteScreen> { inclusive = true }
+                        launchSingleTop = true
                     }
                 }
             }
