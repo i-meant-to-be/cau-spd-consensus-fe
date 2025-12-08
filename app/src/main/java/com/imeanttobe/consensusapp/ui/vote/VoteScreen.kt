@@ -64,8 +64,23 @@ fun VoteScreen(
             && pollResponseUiState.value is UiState.Success
             && voteRequestUiState.value !is UiState.Loading
 
+    LaunchedEffect(key1 = pollResponseUiState.value) {
+        when (val pollState = pollResponseUiState.value) {
+            is UiState.Success -> {
+                // If vote is done, pass vote screen and navigate to result screen
+                val response = pollState.data
+                if (response.isDone) {
+                    navController.navigate(Route.PollResultScreen(id = id)) {
+                        popUpTo(Route.VoteScreen) { inclusive = true }
+                    }
+                }
+            }
+            else -> {}
+        }
+    }
+
     LaunchedEffect(key1 = voteRequestUiState.value) {
-        when (voteRequestUiState.value) {
+        when (val voteState = voteRequestUiState.value) {
             is UiState.Success -> {
                 navController.navigate(
                     Route.VoteResultScreen(
@@ -81,7 +96,7 @@ fun VoteScreen(
                 navController.navigate(
                     Route.VoteResultScreen(
                         isVoteSuccess = false,
-                        errorMessage = (voteRequestUiState.value as UiState.Failure).message
+                        errorMessage = voteState.message
                     )
                 ) {
                     popUpTo(Route.VoteScreen) { inclusive = true }
