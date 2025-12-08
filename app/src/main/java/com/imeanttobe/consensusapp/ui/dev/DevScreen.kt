@@ -53,10 +53,6 @@ fun DevScreen(
                 Text(text = "Result")
             }
 
-            Button(onClick = { navController.navigate(Route.WaitingScreen(id = 0)) }) {
-                Text(text = "Waiting")
-            }
-
             Button(onClick = { navController.navigate(Route.HostDashboardScreen(id = 0)) }) {
                 Text(text = "Host Dashboard")
             }

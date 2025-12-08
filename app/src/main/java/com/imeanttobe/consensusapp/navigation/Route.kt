@@ -25,9 +25,6 @@ sealed interface Route {
     data class VoteScreen(val id: Int) : Route
 
     @Serializable
-    data class WaitingScreen(val id: Int) : Route
-
-    @Serializable
     data class PollResultScreen(val id: Int) : Route
 
     @Serializable
