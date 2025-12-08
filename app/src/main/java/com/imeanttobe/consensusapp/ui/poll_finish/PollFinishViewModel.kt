@@ -1,6 +1,7 @@
 package com.imeanttobe.consensusapp.ui.poll_finish
 
 import android.util.Base64
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -151,8 +152,7 @@ class PollFinishViewModel @Inject constructor(
                                     // 9. Delete poll from PollInfoItemsRepo
                                     val removeRequest = pollInfoItemsRepo.removePollInfo(id)
                                     if (removeRequest.isFailure) {
-                                        _submitPollResultUiState.value = UiState.Failure(removeRequest.exceptionOrNull()?.message ?: "Unknown error")
-                                        return@withContext
+                                        Log.w("PollFinishViewModel", "Failed to remove poll info from repo")
                                     }
 
                                     // 10. Move to result screen

@@ -42,21 +42,20 @@ fun SplashScreen(
     val dialogState = viewModel.dialogState.collectAsStateWithLifecycle()
     val loadingMessage = viewModel.loadingMessage.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(key1 = splashState.value) {
+        // Intent 처리를 먼저 수행
         if (intent?.action == Intent.ACTION_VIEW) {
             val data: Uri? = intent.data
-
             if (data != null &&
                 data.host == "www.consensus.com" &&
-                data.path?.startsWith("/poll") == true
+                data.path?.startsWith("/poll/") == true
             ) {
                 val pollIdStr = data.lastPathSegment
                 viewModel.pendingPollId = pollIdStr?.toIntOrNull()
             }
         }
-    }
 
-    LaunchedEffect(key1 = splashState.value) {
+        // 그 다음 네비게이션
         if (splashState.value is UiState.Success) {
             val pollId = viewModel.pendingPollId
             if (pollId != null) {
@@ -72,6 +71,7 @@ fun SplashScreen(
             viewModel.setDialogState(true)
         }
     }
+
 
     Scaffold { innerPadding ->
         Column(
