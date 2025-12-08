@@ -175,7 +175,7 @@ fun HostDashboardScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp),
+                            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
                         verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
                         // [1] 상단: 투표 정보
@@ -292,7 +292,7 @@ fun HostDashboardScreen(
                                     EmptyStateText("모든 코드가 사용되었습니다! 🎉")
                                 } else {
                                     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        items(unusedCodes.toList()) { code ->
+                                        items(unusedCodes.toList(), key = { it }) { code ->
                                             UnusedCodeItem(
                                                 code = code,
                                                 onShare = { handleShareCode(it, response.title) }
@@ -306,7 +306,7 @@ fun HostDashboardScreen(
                                     EmptyStateText("아직 투표한 사람이 없습니다.")
                                 } else {
                                     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        items(usedCodes) { code ->
+                                        items(usedCodes, key = { it }) { code ->
                                             UsedCodeItem(code = code)
                                         }
                                     }
