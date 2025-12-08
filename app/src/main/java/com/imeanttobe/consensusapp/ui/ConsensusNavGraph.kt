@@ -1,5 +1,6 @@
 package com.imeanttobe.consensusapp.ui
 
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,7 +20,9 @@ import com.imeanttobe.consensusapp.ui.vote.VoteScreen
 import com.imeanttobe.consensusapp.ui.vote_result.VoteResultScreen
 
 @Composable
-fun ConsensusNavGraph() {
+fun ConsensusNavGraph(
+    intent: Intent?
+) {
     val navController = rememberNavController()
 
     NavHost(
@@ -33,7 +36,7 @@ fun ConsensusNavGraph() {
         }
 
         composable<Route.SplashScreen> {
-            SplashScreen(navController = navController)
+            SplashScreen(navController = navController, intent = intent)
         }
 
         composable<Route.HomeRoute> {
@@ -44,14 +47,7 @@ fun ConsensusNavGraph() {
             CreatePollScreen(navController = navController)
         }
 
-        composable<Route.VoteScreen>(
-            deepLinks =
-                listOf(
-                    navDeepLink {
-                        uriPattern = "consensus://poll/{id}"
-                    },
-                ),
-        ) { backStackEntry ->
+        composable<Route.VoteScreen> { backStackEntry ->
             val route: Route.VoteScreen = backStackEntry.toRoute()
             VoteScreen(id = route.id, navController = navController)
         }

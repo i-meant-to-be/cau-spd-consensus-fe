@@ -2,6 +2,7 @@ package com.imeanttobe.consensusapp.ui.splash
 
 import android.util.Base64
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.imeanttobe.consensusapp.core.UiState
@@ -20,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SplashViewModel @Inject constructor(
     private val idRepo: IdRepo,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _splashState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
     val splashState: StateFlow<UiState<Unit>> = _splashState
@@ -29,6 +31,8 @@ class SplashViewModel @Inject constructor(
 
     private val _loadingMessage = MutableStateFlow<String>("대기")
     val loadingMessage: StateFlow<String> = _loadingMessage
+
+    var pendingPollId: Int? = null
 
     init {
         initApp()

@@ -37,7 +37,7 @@ data class CreatePollResponse(
                     "Candidate 3"
                 ),
                 codes = listOf("ABCD", "EFGH", "IJKL"),
-                deepLink = "consensus://poll/1"
+                deepLink = "http://www.consensus.com/poll/1"
             )
         }
     }

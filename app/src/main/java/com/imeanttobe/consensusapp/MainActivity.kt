@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ConsensusTheme {
-                ConsensusNavGraph()
+                ConsensusNavGraph(intent = this@MainActivity.intent)
             }
         }
     }

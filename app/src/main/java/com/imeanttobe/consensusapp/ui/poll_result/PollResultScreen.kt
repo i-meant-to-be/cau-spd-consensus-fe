@@ -43,7 +43,7 @@ fun PollResultScreen(
             '$pollTitle' 투표 결과를 공유합니다!
             
             👇 아래 링크를 눌러 앱에서 바로 결과를 확인하세요:
-            consensus://poll/$id
+            http://www.consensus.com/poll/$id
         """.trimIndent()
         val title = "투표 결과 공유"
         openShareIntent(title, content, context)
