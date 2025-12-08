@@ -1,9 +1,11 @@
 package com.imeanttobe.consensusapp.data.repo
 
 import com.imeanttobe.consensusapp.data.remote.dto.CreatePollResponse
+import com.imeanttobe.consensusapp.data.remote.dto.FinishPollResponse
 import com.imeanttobe.consensusapp.data.remote.dto.GetPollResponse
 import com.imeanttobe.consensusapp.data.remote.dto.GetPollResultResponse
 import com.imeanttobe.consensusapp.data.remote.dto.GetPollStatusResponse
+import com.imeanttobe.consensusapp.data.remote.dto.SubmitPollResultResponse
 import com.imeanttobe.consensusapp.domain.repo.PollRepo
 import kotlinx.coroutines.delay
 
@@ -33,8 +35,8 @@ class FakePollRepoImpl : PollRepo {
         return Result.success(Unit)
     }
 
-    override suspend fun finishPoll(id: Int): Result<Unit> {
-        return Result.success(Unit)
+    override suspend fun finishPoll(id: Int): Result<FinishPollResponse> {
+        return Result.success(FinishPollResponse.getFakeData())
     }
 
     override suspend fun getPollResult(id: Int): Result<GetPollResultResponse> {
@@ -44,7 +46,7 @@ class FakePollRepoImpl : PollRepo {
     override suspend fun submitPollResult(
         id: Int,
         votes: List<Int>
-    ): Result<Unit> {
-        return Result.success(Unit)
+    ): Result<SubmitPollResultResponse> {
+        return Result.success(SubmitPollResultResponse.getFakeData())
     }
 }

@@ -49,7 +49,7 @@ fun DevScreen(
                 Text(text = "Vote")
             }
 
-            Button(onClick = { navController.navigate(Route.ResultScreen(id = 0)) }) {
+            Button(onClick = { navController.navigate(Route.PollResultScreen(id = 0)) }) {
                 Text(text = "Result")
             }
 

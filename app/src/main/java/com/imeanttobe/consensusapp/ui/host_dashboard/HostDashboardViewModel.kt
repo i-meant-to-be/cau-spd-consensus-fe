@@ -20,12 +20,6 @@ class HostDashboardViewModel @Inject constructor(
     private val _pollStatusUiState = MutableStateFlow<UiState<GetPollStatusResponse>>(UiState.Idle)
     val pollStatusUiState: StateFlow<UiState<GetPollStatusResponse>> = _pollStatusUiState
 
-    private val _finishPollUiState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
-    val finishPollUiState: StateFlow<UiState<Unit>> = _finishPollUiState
-
-    private val _finishStatusMessage = MutableStateFlow("")
-    val finishStatusMessage: StateFlow<String> = _finishStatusMessage
-
     private val _dialogState = MutableStateFlow(false)
     val dialogState: StateFlow<Boolean> = _dialogState
 
@@ -44,36 +38,12 @@ class HostDashboardViewModel @Inject constructor(
         }
     }
 
-    fun resetFinishPollUiState() {
-        _finishPollUiState.value = UiState.Idle
-    }
-
     fun setDialogState(state: Boolean) {
         _dialogState.value = state
     }
 
     fun setSelectedTabIndex(index: Int) {
         _selectedTabIndex.value = index
-    }
-
-    fun finishPoll() {
-        _finishPollUiState.value = UiState.Loading
-        _finishStatusMessage.value = "데이터 검증하는 중..."
-
-        viewModelScope.launch {
-            val responseBody = pollStatusUiState.value
-            if (responseBody !is UiState.Success) {
-                _finishPollUiState.value = UiState.Failure("Poll data is not loaded")
-                return@launch
-            }
-
-            _finishStatusMessage.value = "투표 마감 요청 중..."
-            val result = pollRepo.finishPoll(responseBody.data.id)
-            result.fold(
-                onSuccess = { _finishPollUiState.value = UiState.Success(Unit) },
-                onFailure = { _finishPollUiState.value = UiState.Failure(it.message ?: "Unknown error") }
-            )
-        }
     }
 
     fun loadPollStatus(id: Int) {

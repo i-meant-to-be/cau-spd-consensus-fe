@@ -1,4 +1,4 @@
-package com.imeanttobe.consensusapp.ui.result
+package com.imeanttobe.consensusapp.ui.poll_result
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun ResultScreen(id: Int) {
+fun PollResultScreen(id: Int) {
     Scaffold { innerPadding ->
         Text(
             text = "Result Screen: $id",

@@ -3,10 +3,12 @@ package com.imeanttobe.consensusapp.data.repo
 import com.imeanttobe.consensusapp.data.remote.api.PollApi
 import com.imeanttobe.consensusapp.data.remote.dto.CreatePollRequest
 import com.imeanttobe.consensusapp.data.remote.dto.CreatePollResponse
+import com.imeanttobe.consensusapp.data.remote.dto.FinishPollResponse
 import com.imeanttobe.consensusapp.data.remote.dto.GetPollResponse
 import com.imeanttobe.consensusapp.data.remote.dto.GetPollResultResponse
 import com.imeanttobe.consensusapp.data.remote.dto.GetPollStatusResponse
 import com.imeanttobe.consensusapp.data.remote.dto.SubmitPollResultRequest
+import com.imeanttobe.consensusapp.data.remote.dto.SubmitPollResultResponse
 import com.imeanttobe.consensusapp.data.remote.dto.VoteRequest
 import com.imeanttobe.consensusapp.domain.repo.PollRepo
 import javax.inject.Inject
@@ -69,13 +71,15 @@ class PollRepoImpl @Inject constructor(
         }
     }
 
-    override suspend fun submitPollResult(id: Int, votes: List<Int>): Result<Unit> {
+    override suspend fun submitPollResult(id: Int, votes: List<Int>): Result<SubmitPollResultResponse> {
         return try {
             val request = SubmitPollResultRequest(votes)
             val response = pollApi.submitPollResult(id, request)
 
             if (response.isSuccessful) {
-                Result.success(Unit)
+                response.body()?.let { body ->
+                    Result.success(body)
+                } ?: Result.failure(Exception("Response body is null"))
             } else {
                 Result.failure(Exception(response.message()))
             }
@@ -129,12 +133,18 @@ class PollRepoImpl @Inject constructor(
         }
     }
 
-    override suspend fun finishPoll(id: Int): Result<Unit> {
+    override suspend fun finishPoll(id: Int): Result<FinishPollResponse> {
         return try {
             val response = pollApi.finishPoll(id)
 
             if (response.isSuccessful) {
-                Result.success(Unit)
+                val body = response.body()
+
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(Exception("Response body is null"))
+                }
             } else {
                 Result.failure(Exception(response.message()))
             }
