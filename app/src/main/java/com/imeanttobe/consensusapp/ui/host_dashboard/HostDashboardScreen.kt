@@ -181,7 +181,7 @@ fun HostDashboardScreen(
 
                                 // 텍스트로 현황 표시 (예: 3 / 10)
                                 Text(
-                                    text = "${response.usedCodes.size} / ${response.codes.size}",
+                                    text = "${response.usedCodes.size} / ${response.codes.size + response.usedCodes.size}",
                                     style = MaterialTheme.typography.displayMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.primary

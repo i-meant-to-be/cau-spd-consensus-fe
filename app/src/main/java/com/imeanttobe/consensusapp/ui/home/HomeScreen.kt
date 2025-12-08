@@ -104,9 +104,9 @@ fun HomeScreen(
                 fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.titleLarge,
             )
-            when (uiState.value) {
+            when (val state =uiState.value) {
                 is UiState.Success -> {
-                    if ((uiState.value as UiState.Success<List<PollUiModel>>).data.isEmpty()) {
+                    if (state.data.isEmpty()) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -127,7 +127,7 @@ fun HomeScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxWidth().weight(1f)
                         ) {
-                            items(items = (uiState.value as UiState.Success<List<PollUiModel>>).data) { item ->
+                            items(items = state.data) { item ->
                                 RecentPollCard(
                                     item = item,
                                     onClick = { navController.navigate(Route.HostDashboardScreen(id = item.id)) },
@@ -152,7 +152,7 @@ fun HomeScreen(
                                 modifier = Modifier.size(64.dp)
                             )
                             Text(
-                                text = "오류 발생: ${(uiState.value as UiState.Failure).message}",
+                                text = "오류 발생: ${state.message}",
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                         }

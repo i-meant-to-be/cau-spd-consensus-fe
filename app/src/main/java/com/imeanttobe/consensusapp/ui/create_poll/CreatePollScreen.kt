@@ -148,6 +148,7 @@ fun CreatePollScreen(
                 )
 
                 // Participants
+                /*
                 InputItemDescription(
                     title = "참여 인원",
                     icon = Icons.Outlined.Person,
@@ -168,6 +169,8 @@ fun CreatePollScreen(
                         Text(text = i.toString(), color = MaterialTheme.colorScheme.primary)
                     }
                 }
+
+                 */
 
                 // Options
                 InputItemDescription(
