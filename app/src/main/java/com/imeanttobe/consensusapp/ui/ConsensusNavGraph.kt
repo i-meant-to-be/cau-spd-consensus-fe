@@ -69,7 +69,7 @@ fun ConsensusNavGraph() {
 
         composable<Route.HostDashboardScreen> { backStackEntry ->
             val route: Route.HostDashboardScreen = backStackEntry.toRoute()
-            HostDashboardScreen(id = route.id)
+            HostDashboardScreen(id = route.id, navController = navController)
         }
 
         composable<Route.WaitingScreen> { backStackEntry ->
