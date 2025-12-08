@@ -21,7 +21,7 @@ fun PollResultTopBar(
             IconButton(onClick = onBackClicked) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = null
+                    contentDescription = "뒤로 가기"
                 )
             }
         },
@@ -29,7 +29,7 @@ fun PollResultTopBar(
             IconButton(onClick = onShare) {
                 Icon(
                     imageVector = Icons.Outlined.Share,
-                    contentDescription = null
+                    contentDescription = "투표 결과 공유"
                 )
             }
         }

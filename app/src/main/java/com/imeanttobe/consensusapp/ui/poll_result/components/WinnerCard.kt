@@ -34,7 +34,7 @@ fun WinnerCard(winners: Map<String, Int>) {
         ) {
             Icon(
                 imageVector = Icons.Outlined.EmojiEvents, // 트로피 아이콘
-                contentDescription = "Winner",
+                contentDescription = "우승자",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(64.dp)
             )

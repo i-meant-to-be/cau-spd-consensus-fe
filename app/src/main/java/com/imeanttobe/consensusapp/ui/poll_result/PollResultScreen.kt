@@ -37,11 +37,7 @@ fun PollResultScreen(
 
     val handleBackClick: () -> Unit = { navController.popBackStack() }
     val handleShare: () -> Unit = {
-        val pollTitle = if (uiState.value is UiState.Success) {
-            (uiState.value as UiState.Success<GetPollResultResponse>).data.title
-        } else {
-            "제목 오류"
-        }
+        val pollTitle = (uiState.value as? UiState.Success<GetPollResultResponse>)?.data?.title ?: "제목 오류"
         val content = """
             [Consensus 투표 결과]
             '$pollTitle' 투표 결과를 공유합니다!
@@ -65,6 +61,7 @@ fun PollResultScreen(
         when (val resultState = uiState.value) {
             is UiState.Success -> {
                 val responseBody = resultState.data
+                val totalVotes = responseBody.votes.sum()
                 val voteCountTable = responseBody.candidates.zip(responseBody.votes).toMap()
                 val maxVotes = voteCountTable.values.maxOfOrNull { it } ?: 0
                 val winners = voteCountTable.filter { it.value == maxVotes && maxVotes > 0 }
@@ -91,7 +88,7 @@ fun PollResultScreen(
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        text = "ID: $id • 총 투표수: ${responseBody.votes.sum()}",
+                        text = "ID: $id • 총 투표수: $totalVotes",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -117,13 +114,13 @@ fun PollResultScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    voteCountTable.toSortedMap().forEach { (candidate, vote) ->
+                    voteCountTable.toSortedMap().entries.forEachIndexed { index, (candidate, vote) ->
                         ResultItem(
                             candidate = candidate,
                             vote = vote,
-                            totalVotes = responseBody.votes.sum(),
+                            totalVotes = totalVotes,
                             isWinner = vote == maxVotes && maxVotes > 0,
-                            animationDelay = 250
+                            animationDelay = 100 * index
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
