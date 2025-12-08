@@ -28,6 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.imeanttobe.consensusapp.core.UiState
@@ -43,6 +45,10 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.loadPollUiModel()
+    }
 
     Scaffold(modifier = modifier) { innerPadding ->
         Column(
