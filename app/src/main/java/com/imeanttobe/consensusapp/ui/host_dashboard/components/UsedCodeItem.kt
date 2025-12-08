@@ -37,14 +37,12 @@ fun UsedCodeItem(code: String) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = code,
-                    style = MaterialTheme.typography.bodyLarge,
-                    textDecoration = TextDecoration.LineThrough, // 취소선 효과
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                )
-            }
+            Text(
+                text = code,
+                style = MaterialTheme.typography.bodyLarge,
+                textDecoration = TextDecoration.LineThrough, // 취소선 효과
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+            )
 
             // 완료 뱃지
             Row(verticalAlignment = Alignment.CenterVertically) {

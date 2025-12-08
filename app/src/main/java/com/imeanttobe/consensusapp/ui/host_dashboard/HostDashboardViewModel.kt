@@ -37,7 +37,11 @@ class HostDashboardViewModel @Inject constructor(
 
     init {
         val id = savedStateHandle.get<Int>("id") ?: -1
-        loadPollStatus(id)
+        if (id != -1) {
+            loadPollStatus(id)
+        } else {
+            _pollStatusUiState.value = UiState.Failure("Invalid poll id")
+        }
     }
 
     fun resetFinishPollUiState() {
@@ -54,6 +58,7 @@ class HostDashboardViewModel @Inject constructor(
 
     fun finishPoll() {
         _finishPollUiState.value = UiState.Loading
+        _finishStatusMessage.value = "데이터 검증하는 중..."
 
         viewModelScope.launch {
             val responseBody = pollStatusUiState.value
@@ -62,6 +67,7 @@ class HostDashboardViewModel @Inject constructor(
                 return@launch
             }
 
+            _finishStatusMessage.value = "투표 마감 요청 중..."
             val result = pollRepo.finishPoll(responseBody.data.id)
             result.fold(
                 onSuccess = { _finishPollUiState.value = UiState.Success(Unit) },
@@ -77,9 +83,13 @@ class HostDashboardViewModel @Inject constructor(
             val result = pollRepo.getPollStatus(id)
 
             result.fold(
-                onSuccess = {
-                    _pollStatusUiState.value = UiState.Success(it)
-                    _progress.value = it.usedCodes.size.toFloat() / it.codes.size.toFloat()
+                onSuccess = { requestBody ->
+                    _pollStatusUiState.value = UiState.Success(requestBody)
+                    _progress.value = if (requestBody.codes.isNotEmpty()) {
+                        requestBody.usedCodes.size.toFloat() / requestBody.codes.size.toFloat()
+                    } else {
+                        0f
+                    }
                 },
                 onFailure = { _pollStatusUiState.value = UiState.Failure(it.message ?: "Unknown error") }
             )

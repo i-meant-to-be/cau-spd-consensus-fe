@@ -7,7 +7,8 @@ import com.google.gson.annotations.SerializedName
  * @param title Poll title
  * @param id Poll id
  * @param candidates Poll candidates
- * @param votes Decrypted poll votes
+ * @param codes Poll codes
+ * @param usedCodes Used poll codes
  */
 data class GetPollStatusResponse(
     @SerializedName("title")

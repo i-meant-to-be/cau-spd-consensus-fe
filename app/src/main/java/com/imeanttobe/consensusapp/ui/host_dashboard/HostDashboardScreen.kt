@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Info
@@ -286,15 +288,16 @@ fun HostDashboardScreen(
                             // 3-2. 리스트 내용
                             if (selectedTabIndex.value == 0) {
                                 // 미참여 리스트 (공유 버튼 있음)
-                                if (response.codes.isEmpty()) {
+                                if (unusedCodes.isEmpty()) {
                                     EmptyStateText("모든 코드가 사용되었습니다! 🎉")
                                 } else {
-                                    unusedCodes.forEach { code ->
-                                        UnusedCodeItem(
-                                            code = code,
-                                            onShare = { handleShareCode(it, response.title) }
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
+                                    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        items(unusedCodes.toList()) { code ->
+                                            UnusedCodeItem(
+                                                code = code,
+                                                onShare = { handleShareCode(it, response.title) }
+                                            )
+                                        }
                                     }
                                 }
                             } else {
@@ -302,9 +305,10 @@ fun HostDashboardScreen(
                                 if (usedCodes.isEmpty()) {
                                     EmptyStateText("아직 투표한 사람이 없습니다.")
                                 } else {
-                                    usedCodes.forEach { code ->
-                                        UsedCodeItem(code = code)
-                                        Spacer(modifier = Modifier.height(8.dp))
+                                    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        items(usedCodes) { code ->
+                                            UsedCodeItem(code = code)
+                                        }
                                     }
                                 }
                             }

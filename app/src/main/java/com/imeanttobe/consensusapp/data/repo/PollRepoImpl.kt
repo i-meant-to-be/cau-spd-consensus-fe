@@ -121,7 +121,7 @@ class PollRepoImpl @Inject constructor(
                 } else {
                     Result.failure(Exception("Response body is null"))
                 }
-                } else {
+            } else {
                 Result.failure(Exception(response.message()))
             }
         } catch (e: Exception) {
