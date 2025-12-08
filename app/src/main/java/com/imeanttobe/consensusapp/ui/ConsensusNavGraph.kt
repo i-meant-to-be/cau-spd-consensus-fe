@@ -59,7 +59,7 @@ fun ConsensusNavGraph() {
 
         composable<Route.PollResultScreen> { backStackEntry ->
             val route: Route.PollResultScreen = backStackEntry.toRoute()
-            PollResultScreen(id = route.id)
+            PollResultScreen(id = route.id, navController = navController)
         }
 
         composable<Route.VoteResultScreen> { backStackEntry ->
