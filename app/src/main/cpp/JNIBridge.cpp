@@ -16,12 +16,8 @@ using namespace seal;
 
 // Unique pointers
 static unique_ptr<SEALContext>  g_context;
-static unique_ptr<KeyGenerator> g_keygen;
-static unique_ptr<Decryptor>    g_decryptor;
 static unique_ptr<Evaluator>    g_evaluator;
 static unique_ptr<BatchEncoder> g_encoder;
-static unique_ptr<PublicKey>    g_public_key;
-static unique_ptr<SecretKey>    g_secret_key;
 
 // Constants
 static const string PATH_SEAL_KEYS_CLASS = "com/imeanttobe/consensusapp/seal/SealKeys";
@@ -59,7 +55,6 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_initContext(JNIEnv *env, jobject
         // Create global instances
         g_context = std::move(context);
         g_evaluator = make_unique<Evaluator>(*g_context);
-        g_keygen = make_unique<KeyGenerator>(*g_context);
         g_encoder = make_unique<BatchEncoder>(*g_context);
 
         return JNI_TRUE;
@@ -80,22 +75,17 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobjec
     }
 
     try {
-        // Check whether key generator is exist
-        if (!g_keygen) {
-            g_keygen = make_unique<KeyGenerator>(*g_context);
-        }
+        // Generate key generator
+        KeyGenerator keygen(*g_context);
 
         // Create SK, PK
-        g_secret_key = make_unique<SecretKey>(g_keygen->secret_key());
-        g_public_key = make_unique<PublicKey>();
-        g_keygen->create_public_key(*g_public_key);
-
-        // Create encryptor and decryptor
-        g_decryptor = make_unique<Decryptor>(*g_context, *g_secret_key);
+        SecretKey secret_key = keygen.secret_key();
+        PublicKey public_key;
+        keygen.create_public_key(public_key);
 
         // Serialize pk
         stringstream pk_stream;
-        g_public_key->save(pk_stream);
+        public_key.save(pk_stream);
         string serialized_pk = pk_stream.str();
 
         // Convert pk to jbyteArray
@@ -104,7 +94,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobjec
 
         // Serialize sk
         stringstream sk_stream;
-        g_secret_key->save(sk_stream);
+        secret_key.save(sk_stream);
         string serialized_sk = sk_stream.str();
 
         // Convert sk to jbyteArray
@@ -221,19 +211,32 @@ extern "C" JNIEXPORT jlongArray JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(
         JNIEnv *env,
         jobject,
-        jbyteArray cipherBytes) {
+        jbyteArray cipherBytes,
+        jbyteArray secretKeyBytes) {
     // Check whether context is initialized
-    if (!g_context || !g_encoder || !g_decryptor) {
+    if (!g_context || !g_encoder) {
         return nullptr;
     }
 
 	// Check whether input byte array is valid
-	if (cipherBytes == nullptr) {
-		__android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input ciphertext byte array is null.");
+	if (cipherBytes == nullptr || secretKeyBytes == nullptr) {
+		__android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input ciphertext byte array or secret key is null.");
 		return nullptr;
 	}
 
     try {
+        // --- 0. 비밀 키 로드 (ByteArray -> SecretKey) ---
+        jsize sk_len = env->GetArrayLength(secretKeyBytes);
+        jbyte* sk_ptr = env->GetByteArrayElements(secretKeyBytes, nullptr);
+        string sk_str(reinterpret_cast<char*>(sk_ptr), sk_len);
+        env->ReleaseByteArrayElements(secretKeyBytes, sk_ptr, JNI_ABORT);
+
+        stringstream sk_stream(sk_str);
+        SecretKey secret_key;
+        secret_key.load(*g_context, sk_stream);
+
+        Decryptor local_decryptor(*g_context, secret_key);
+
         // --- 1. JNI ByteArray -> Ciphertext 역직렬화 ---
         jsize len = env->GetArrayLength(cipherBytes);
         jbyte *ptr = env->GetByteArrayElements(cipherBytes, nullptr);
@@ -247,7 +250,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(
 
         // --- 2. 복호화 (Ciphertext -> Plaintext) ---
         Plaintext plain;
-        g_decryptor->decrypt(encrypted, plain);
+        local_decryptor.decrypt(encrypted, plain);
 
         // --- 3. 디코딩 (Plaintext -> Vector<int64_t>) ---
         vector<int64_t> pod_result;
