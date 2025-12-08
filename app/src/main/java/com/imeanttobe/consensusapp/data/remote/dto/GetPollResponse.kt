@@ -11,6 +11,7 @@ import com.imeanttobe.consensusapp.seal.NativeLib
  * @property id The ID of the poll.
  * @property candidates The list of candidates for the poll.
  * @property pk The public key of the poll.
+ * @property isDone Whether the poll is done or not.
  */
 data class GetPollResponse(
     @SerializedName("title")
@@ -23,7 +24,10 @@ data class GetPollResponse(
     val candidates: List<String>,
 
     @SerializedName("pk")
-    val pk: String
+    val pk: String,
+
+    @SerializedName("isDone")
+    val isDone: Boolean
 ) {
     companion object {
         fun getFakeData(): GetPollResponse {
@@ -40,7 +44,8 @@ data class GetPollResponse(
                 title = "Title",
                 id = 1,
                 candidates = listOf("Candidate 1", "Candidate 2", "Candidate 3"),
-                pk = encodedPk
+                pk = encodedPk,
+                isDone = false
             )
         }
     }
