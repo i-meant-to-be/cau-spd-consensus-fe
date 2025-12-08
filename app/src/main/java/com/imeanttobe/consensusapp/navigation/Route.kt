@@ -31,5 +31,5 @@ sealed interface Route {
     data class PollResultScreen(val id: Int) : Route
 
     @Serializable
-    data class PollFinishScreen(val id: Int) : Route)
+    data class PollFinishScreen(val id: Int) : Route
 }
