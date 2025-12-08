@@ -34,6 +34,7 @@ object NativeLib {
     /**
      * 암호문을 평문으로 복호화합니다.
      * @param cipherBytes 암호문
+     * @param secretKeyBytes 비밀 키
      * @return 복호화된 평문 (LongArray?)
      */
     external fun decrypt(cipherBytes: ByteArray, secretKeyBytes: ByteArray): LongArray?

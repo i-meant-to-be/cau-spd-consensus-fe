@@ -220,7 +220,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(
 
 	// Check whether input byte array is valid
 	if (cipherBytes == nullptr || secretKeyBytes == nullptr) {
-		__android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input ciphertext byte array is null.");
+		__android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input ciphertext byte array or secret key is null.");
 		return nullptr;
 	}
 
