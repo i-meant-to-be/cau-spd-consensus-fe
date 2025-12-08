@@ -36,7 +36,7 @@ object NativeLib {
      * @param cipherBytes 암호문
      * @return 복호화된 평문 (LongArray?)
      */
-    external fun decrypt(cipherBytes: ByteArray): LongArray?
+    external fun decrypt(cipherBytes: ByteArray, secretKeyBytes: ByteArray): LongArray?
 
     /**
      * 두 개의 암호문을 동형암호 덧셈합니다.
