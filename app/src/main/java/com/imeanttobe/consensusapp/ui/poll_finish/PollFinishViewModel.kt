@@ -13,12 +13,10 @@ import com.imeanttobe.consensusapp.domain.repo.PollRepo
 import com.imeanttobe.consensusapp.seal.NativeLib
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.annotation.Native
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,6 +42,7 @@ class PollFinishViewModel @Inject constructor(
             finishPoll(id = id)
         } else {
             _finishPollUiState.value = UiState.Failure("Invalid poll id")
+            _submitPollResultUiState.value = UiState.Failure("Invalid poll id")
         }
     }
 
@@ -123,11 +122,7 @@ class PollFinishViewModel @Inject constructor(
 
                         // 6. Sum all encoded and encrypted list with SEAL
                         _statusMessage.value = "암호화된 투표 값 합산 중..."
-                        var sum = decodedEncryptedVotes.firstOrNull()
-                        if (sum == null) {
-                            _submitPollResultUiState.value = UiState.Failure("Failed to get encrypted votes")
-                            return@launch
-                        }
+                        var sum = decodedEncryptedVotes.first()
 
                         for (i in 1 until decodedEncryptedVotes.size) {
                             val addValue = NativeLib.addCiphertexts(sum, decodedEncryptedVotes[i])
@@ -140,7 +135,7 @@ class PollFinishViewModel @Inject constructor(
 
                         // 7. Decrypt sum with SEAL
                         _statusMessage.value = "결과 복호화 중..."
-                        val decryptedSum = NativeLib.decrypt(sum)
+                        val decryptedSum = NativeLib.decrypt(cipherBytes = sum, secretKeyBytes = decryptedSk)
                         if (decryptedSum == null) {
                             _submitPollResultUiState.value = UiState.Failure("Failed to decrypt sum")
                             return@launch

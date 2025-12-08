@@ -77,13 +77,9 @@ class PollRepoImpl @Inject constructor(
             val response = pollApi.submitPollResult(id, request)
 
             if (response.isSuccessful) {
-                val body = response.body()
-
-                if (body != null) {
+                response.body()?.let { body ->
                     Result.success(body)
-                } else {
-                    Result.failure(Exception("Response body is null"))
-                }
+                } ?: Result.failure(Exception("Response body is null"))
             } else {
                 Result.failure(Exception(response.message()))
             }
@@ -149,7 +145,7 @@ class PollRepoImpl @Inject constructor(
                 } else {
                     Result.failure(Exception("Response body is null"))
                 }
-            }else {
+            } else {
                 Result.failure(Exception(response.message()))
             }
         } catch (e: Exception) {

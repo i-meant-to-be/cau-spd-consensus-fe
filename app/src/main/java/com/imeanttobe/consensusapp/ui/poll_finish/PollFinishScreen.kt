@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,7 +23,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.navigation.Route
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -38,7 +36,6 @@ fun PollFinishScreen(
     val statusMessage = viewModel.statusMessage.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = submitPollResultUiState.value) {
         when (val state = submitPollResultUiState.value) {
@@ -48,13 +45,11 @@ fun PollFinishScreen(
                 }
             }
             is UiState.Failure -> {
-                scope.launch {
-                    val message = "투표 완료 처리 실패. 원인: ${state.message}"
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        duration = SnackbarDuration.Short
-                    )
-                }
+                val message = "투표 완료 처리 실패. 원인: ${state.message}"
+                snackbarHostState.showSnackbar(
+                    message = message,
+                    duration = SnackbarDuration.Short
+                )
                 navController.popBackStack()
             }
             else -> {}
