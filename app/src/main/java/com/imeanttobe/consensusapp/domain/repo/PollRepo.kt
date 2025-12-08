@@ -1,16 +1,18 @@
 package com.imeanttobe.consensusapp.domain.repo
 
 import com.imeanttobe.consensusapp.data.remote.dto.CreatePollResponse
+import com.imeanttobe.consensusapp.data.remote.dto.FinishPollResponse
 import com.imeanttobe.consensusapp.data.remote.dto.GetPollResponse
 import com.imeanttobe.consensusapp.data.remote.dto.GetPollResultResponse
 import com.imeanttobe.consensusapp.data.remote.dto.GetPollStatusResponse
+import com.imeanttobe.consensusapp.data.remote.dto.SubmitPollResultResponse
 
 interface PollRepo {
     suspend fun getPoll(id: Int): Result<GetPollResponse>
     suspend fun vote(id: Int, vote: String, code: String): Result<Unit>
-    suspend fun finishPoll(id: Int): Result<Unit>
+    suspend fun finishPoll(id: Int): Result<FinishPollResponse>
     suspend fun getPollResult(id: Int): Result<GetPollResultResponse>
-    suspend fun submitPollResult(id: Int, votes: List<Int>): Result<Unit>
+    suspend fun submitPollResult(id: Int, votes: List<Int>): Result<SubmitPollResultResponse>
     suspend fun createPoll(title: String, pk: String, candidates: List<String>): Result<CreatePollResponse>
     suspend fun getPollStatus(id: Int): Result<GetPollStatusResponse>
 }
