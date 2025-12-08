@@ -12,6 +12,7 @@ import com.imeanttobe.consensusapp.domain.repo.PollInfoItemsRepo
 import com.imeanttobe.consensusapp.domain.repo.PollRepo
 import com.imeanttobe.consensusapp.seal.NativeLib
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -31,7 +32,7 @@ class PollFinishViewModel @Inject constructor(
     private val _submitPollResultUiState = MutableStateFlow<UiState<SubmitPollResultResponse>>(UiState.Idle)
     val submitPollResultUiState: StateFlow<UiState<SubmitPollResultResponse>> = _submitPollResultUiState
 
-    private val _statusMessage = MutableStateFlow("")
+    private val _statusMessage = MutableStateFlow("투표 완료 준비 중...")
     val statusMessage: StateFlow<String> = _statusMessage
 
     init {
@@ -44,11 +45,31 @@ class PollFinishViewModel @Inject constructor(
         }
     }
 
+    /**
+     * # 동작 플로우
+     * 1. 투표가 마감됐음을 서버에 알린다.
+     * 2. 응답으로 모든 암호화/인코딩된 투표 값 리스트(List<Base64 String>)를 받는다.
+     * 3. 인코딩된 리스트를 디코딩한다.
+     * 4. PollInfoItemsRepo에서 투표 ID에 맞는 암호화된 SK, IV를 꺼낸다.
+     * 5. SK는 CryptoManager로 복호화한다.
+     * 6. 인코딩된 리스트를 암호화된 상태로 모두 더한다.
+     * 7. 더한 결과를 SK로 복호화하여 최종 투표 결과를 계산한다.
+     * 8. 최종 투표 결과를 서버에 전송한다.
+     * 9. 전송이 성공적으로 완료되었다면 투표 결과 화면 PollResultScreen으로 이동한다.
+     */
+
+    /**
+     * 투표 마감 함수. 투표가 마감되었음을 서버에 알립니다.
+     * 1. 투표가 마감됐음을 서버에 알린다.
+     * 2. 응답으로 모든 암호화/인코딩된 투표 값 리스트(List<Base64 String>)를 받는다.
+     * @param id 마감할 투표의 ID
+     */
     private fun finishPoll(id: Int) {
         _finishPollUiState.value = UiState.Loading
 
         viewModelScope.launch {
             val response = pollRepo.finishPoll(id = id)
+            delay(130000000)
             response.fold(
                 onSuccess = { responseBody ->
                     _finishPollUiState.value = UiState.Success(responseBody)
@@ -59,59 +80,71 @@ class PollFinishViewModel @Inject constructor(
         }
     }
 
+    /**
+     * 투표 결과 취합 및 계산 함수. 암호화된 투표 값을 모두 더하고 복호화한 후, 이를 서버에 전송합니다.
+     * 3. 인코딩된 리스트를 디코딩한다.
+     * 4. PollInfoItemsRepo에서 투표 ID에 맞는 암호화된 SK, IV를 꺼낸다.
+     * 5. SK는 CryptoManager로 복호화한다.
+     * 6. 인코딩된 리스트를 암호화된 상태로 모두 더한다.
+     * 7. 더한 결과를 SK로 복호화하여 최종 투표 결과를 계산한다.
+     * 8. 최종 투표 결과를 서버에 전송한다.
+     * 9. 전송이 성공적으로 완료되었다면 투표 결과 화면 PollResultScreen으로 이동한다.
+     * @param id 투표의 ID
+     * @param encryptedVotes 암호화된 투표 값 리스트
+     */
     private fun submitPollResult(id: Int, encryptedVotes: List<String>) {
         _submitPollResultUiState.value = UiState.Loading
 
         viewModelScope.launch {
-            // Get sk from repo
-            val request = pollInfoItemsRepo.getPollInfo(id)
-            if (request.isSuccess) {
-                val pollInfo = request.getOrNull()
-                if (pollInfo != null) {
-                    // Decrypt sk
+            // 3. Decode given list
+            val decodedEncryptedVotes = encryptedVotes.map { Base64.decode(it, Base64.NO_WRAP) }
+
+            // 4. Get encrypted SK and IV from PollInfoItemsRepo
+            pollInfoItemsRepo.getPollInfo(id).fold(
+                onSuccess = { pollInfo ->
+                    // 5. Decrypt SK with CryptoManager
                     val decryptedSk = cryptoManager.decrypt(
                         ciphertext = pollInfo.encryptedSk.toByteArray(),
                         iv = pollInfo.iv.toByteArray()
                     )
 
-                    // Decode Base64 votes
-                    val decodedVotes = encryptedVotes.map { Base64.decode(it, Base64.NO_WRAP) }
-
-                    // Sum all votes
-                    var sum = decodedVotes.first()
-                    for (i in 1 until decodedVotes.size) {
-                        val addValue = NativeLib.addCiphertexts(sum, decodedVotes[i])
-                        if (addValue != null) {
-                            sum = addValue
-                        } else {
+                    // 6. Sum all encoded and encrypted list with SEAL
+                    var sum = decodedEncryptedVotes.first()
+                    for (i in 1 until decodedEncryptedVotes.size) {
+                        val addValue = NativeLib.addCiphertexts(sum, decodedEncryptedVotes[i])
+                        if (addValue == null) {
                             _submitPollResultUiState.value = UiState.Failure("Failed to add votes")
                             return@launch
                         }
+                        sum = addValue
                     }
 
-                    // Decrypt sum
+                    // 7. Decrypt sum with SEAL
                     val decryptedSum = NativeLib.decrypt(sum)
-                    if (decryptedSum != null) {
-                        // Send result to server
-                        val result = pollRepo.submitPollResult(id = id, votes = decryptedSum.map { it.toInt() })
-                        result.fold(
-                            onSuccess = { responseBody ->
-                                _submitPollResultUiState.value = UiState.Success(responseBody)
-                                _statusMessage.value = "투표가 완료되었습니다."
-                            },
-                            onFailure = { _submitPollResultUiState.value = UiState.Failure(it.message ?: "Unknown error") }
-                        )
-                    } else {
+                    if (decryptedSum == null) {
                         _submitPollResultUiState.value = UiState.Failure("Failed to decrypt sum")
                         return@launch
                     }
-                } else {
-                    _submitPollResultUiState.value = UiState.Failure("Poll info not found")
+                    val payload = decryptedSum.map { it.toInt() }
+
+                    // 8. Send result to server
+                    val submitPollResultRequest = pollRepo.submitPollResult(id = id, votes = payload)
+                    submitPollResultRequest.fold(
+                        onSuccess = { responseBody ->
+                            _submitPollResultUiState.value = UiState.Success(responseBody)
+                            _statusMessage.value = "투표 마감 완료!"
+                        },
+                        onFailure = {
+                            _submitPollResultUiState.value = UiState.Failure(it.message ?: "Unknown error")
+                            return@launch
+                        }
+                    )
+                },
+                onFailure = {
+                    _submitPollResultUiState.value = UiState.Failure(it.message ?: "Unknown error")
                     return@launch
                 }
-            } else {
-                _submitPollResultUiState.value = UiState.Failure(request.exceptionOrNull()?.message ?: "Unknown error")
-            }
+            )
         }
     }
 }
