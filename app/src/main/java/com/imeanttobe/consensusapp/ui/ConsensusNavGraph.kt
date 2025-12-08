@@ -12,6 +12,7 @@ import com.imeanttobe.consensusapp.ui.create_poll.CreatePollScreen
 import com.imeanttobe.consensusapp.ui.dev.DevScreen
 import com.imeanttobe.consensusapp.ui.home.HomeScreen
 import com.imeanttobe.consensusapp.ui.host_dashboard.HostDashboardScreen
+import com.imeanttobe.consensusapp.ui.poll_finish.PollFinishScreen
 import com.imeanttobe.consensusapp.ui.poll_result.PollResultScreen
 import com.imeanttobe.consensusapp.ui.splash.SplashScreen
 import com.imeanttobe.consensusapp.ui.vote.VoteScreen
@@ -56,8 +57,8 @@ fun ConsensusNavGraph() {
             VoteScreen(id = route.id, navController = navController)
         }
 
-        composable<Route.ResultScreen> { backStackEntry ->
-            val route: Route.ResultScreen = backStackEntry.toRoute()
+        composable<Route.PollResultScreen> { backStackEntry ->
+            val route: Route.PollResultScreen = backStackEntry.toRoute()
             PollResultScreen(id = route.id)
         }
 
@@ -74,6 +75,11 @@ fun ConsensusNavGraph() {
         composable<Route.WaitingScreen> { backStackEntry ->
             val route: Route.WaitingScreen = backStackEntry.toRoute()
             WaitingScreen(id = route.id)
+        }
+
+        composable<Route.PollFinishScreen> { backStackEntry ->
+            val route: Route.PollFinishScreen = backStackEntry.toRoute()
+            PollFinishScreen(id = route.id)
         }
     }
 }
