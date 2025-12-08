@@ -89,7 +89,7 @@ fun VoteScreen(
                         errorMessage = ""
                     )
                 ) {
-                    popUpTo(Route.VoteScreen) { inclusive = true }
+                    popUpTo<Route.VoteScreen> { inclusive = true }
                     launchSingleTop = true
                 }
             }
@@ -100,7 +100,7 @@ fun VoteScreen(
                         errorMessage = voteState.message
                     )
                 ) {
-                    popUpTo(Route.VoteScreen) { inclusive = true }
+                    popUpTo<Route.VoteScreen> { inclusive = true }
                     launchSingleTop = true
                 }
             }

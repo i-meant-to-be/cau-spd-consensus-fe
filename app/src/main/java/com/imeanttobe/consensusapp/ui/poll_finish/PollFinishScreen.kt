@@ -41,7 +41,7 @@ fun PollFinishScreen(
         when (val state = submitPollResultUiState.value) {
             is UiState.Success -> {
                 navController.navigate(Route.PollResultScreen(id = id)) {
-                    popUpTo(Route.HostDashboardScreen) { inclusive = true }
+                    popUpTo<Route.HostDashboardScreen> { inclusive = true }
                 }
             }
             is UiState.Failure -> {

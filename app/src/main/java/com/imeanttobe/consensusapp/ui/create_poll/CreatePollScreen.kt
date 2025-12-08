@@ -97,7 +97,7 @@ fun CreatePollScreen(
             is UiState.Success -> {
                 val pollInfo = uiStateValue.data
                 navController.navigate(Route.HostDashboardScreen(id = pollInfo.id)) {
-                    popUpTo(Route.CreatePollScreen) { inclusive = true }
+                    popUpTo<Route.CreatePollScreen> { inclusive = true }
                 }
             }
             is UiState.Failure -> {
