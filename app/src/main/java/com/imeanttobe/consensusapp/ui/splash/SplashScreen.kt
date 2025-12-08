@@ -1,5 +1,7 @@
 package com.imeanttobe.consensusapp.ui.splash
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +32,7 @@ import com.imeanttobe.consensusapp.navigation.Route
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SplashScreen(
+    intent: Intent?,
     navController: NavHostController,
     viewModel: SplashViewModel = hiltViewModel()
 ) {
@@ -39,11 +42,30 @@ fun SplashScreen(
     val dialogState = viewModel.dialogState.collectAsStateWithLifecycle()
     val loadingMessage = viewModel.loadingMessage.collectAsStateWithLifecycle()
 
+    LaunchedEffect(key1 = Unit) {
+        if (intent?.action == Intent.ACTION_VIEW) {
+            val data: Uri? = intent.data
+
+            if (data != null &&
+                data.host == "www.consensus.com" &&
+                data.path?.startsWith("/poll") == true
+            ) {
+                val pollIdStr = data.lastPathSegment
+                viewModel.pendingPollId = pollIdStr?.toIntOrNull()
+            }
+        }
+    }
+
     LaunchedEffect(key1 = splashState.value) {
         if (splashState.value is UiState.Success) {
-            navController.navigate(Route.HomeRoute) {
-                popUpTo<Route.SplashScreen> {
-                    inclusive = true
+            val pollId = viewModel.pendingPollId
+            if (pollId != null) {
+                navController.navigate(Route.VoteScreen(id = pollId)) {
+                    popUpTo<Route.SplashScreen> { inclusive = true }
+                }
+            } else {
+                navController.navigate(Route.HomeRoute) {
+                    popUpTo<Route.SplashScreen> { inclusive = true }
                 }
             }
         } else if (splashState.value is UiState.Failure) {

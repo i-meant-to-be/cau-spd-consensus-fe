@@ -94,7 +94,7 @@ fun HostDashboardScreen(
             투표에 참여해주세요!
             
             👇 아래 링크를 눌러 앱에서 바로 투표하세요:
-            consensus://poll/$id
+            http://www.consensus.com/poll/$id
         """.trimIndent()
         val title = "투표 공유"
         openShareIntent(title, content, context)
@@ -107,7 +107,7 @@ fun HostDashboardScreen(
             🔑 참여 코드: $code
             
             👇 아래 링크를 눌러 앱에서 바로 투표하세요:
-            consensus://poll/$id
+            http://www.consensus.com/poll/$id
         """.trimIndent()
         val title = "투표 코드 공유"
         openShareIntent(title, content, context)
@@ -181,7 +181,7 @@ fun HostDashboardScreen(
 
                                 // 텍스트로 현황 표시 (예: 3 / 10)
                                 Text(
-                                    text = "${response.usedCodes.size} / ${response.codes.size}",
+                                    text = "${response.usedCodes.size} / ${response.codes.size + response.usedCodes.size}",
                                     style = MaterialTheme.typography.displayMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.primary

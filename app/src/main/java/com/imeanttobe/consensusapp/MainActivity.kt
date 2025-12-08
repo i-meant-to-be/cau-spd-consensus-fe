@@ -1,5 +1,6 @@
 package com.imeanttobe.consensusapp
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,8 +17,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ConsensusTheme {
-                ConsensusNavGraph()
+                ConsensusNavGraph(intent = this@MainActivity.intent)
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
     }
 }
