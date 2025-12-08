@@ -41,7 +41,7 @@ fun SplashScreen(
 
     LaunchedEffect(key1 = splashState.value) {
         if (splashState.value is UiState.Success) {
-            navController.navigate(Route.DevRoute) {
+            navController.navigate(Route.HomeRoute) {
                 popUpTo(Route.SplashScreen) {
                     inclusive = true
                 }

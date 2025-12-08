@@ -49,6 +49,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.imeanttobe.consensusapp.core.UiState
+import com.imeanttobe.consensusapp.core.openShareIntent
 import com.imeanttobe.consensusapp.navigation.Route
 import com.imeanttobe.consensusapp.ui.host_dashboard.components.EmptyStateText
 import com.imeanttobe.consensusapp.ui.host_dashboard.components.FinishConfirmDialog
@@ -77,15 +78,6 @@ fun HostDashboardScreen(
     )
     val isFinishButtonEnabled = pollStatusUiState.value is UiState.Success
     val tabs = listOf("미참여", "참여")
-    val openShareIntent: (title: String, content: String) -> Unit = { title, content ->
-        val sendIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, content)
-            type = "text/plain"
-        }
-        val shareIntent = Intent.createChooser(sendIntent, title)
-        context.startActivity(shareIntent)
-    }
 
     val handleNavigateBack: () -> Unit = { navController.popBackStack() }
     val handleOpenDialog: () -> Unit = { viewModel.setDialogState(true) }
@@ -105,7 +97,7 @@ fun HostDashboardScreen(
             consensus://poll/$id
         """.trimIndent()
         val title = "투표 공유"
-        openShareIntent(title, content)
+        openShareIntent(title, content, context)
     }
     val handleShareCode: (code: String, pollTitle: String) -> Unit = { code, pollTitle ->
         val content = """
@@ -118,7 +110,7 @@ fun HostDashboardScreen(
             consensus://poll/$id
         """.trimIndent()
         val title = "투표 코드 공유"
-        openShareIntent(title, content)
+        openShareIntent(title, content, context)
     }
 
     Scaffold(
