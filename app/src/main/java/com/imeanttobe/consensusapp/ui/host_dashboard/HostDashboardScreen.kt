@@ -65,9 +65,7 @@ fun HostDashboardScreen(
     viewModel: HostDashboardViewModel = hiltViewModel()
 ) {
     val pollStatusUiState = viewModel.pollStatusUiState.collectAsStateWithLifecycle()
-    val finishPollUiState = viewModel.finishPollUiState.collectAsStateWithLifecycle()
     val dialogState = viewModel.dialogState.collectAsStateWithLifecycle()
-    val finishStatusMessage = viewModel.finishStatusMessage.collectAsStateWithLifecycle()
     val progress = viewModel.progress.collectAsStateWithLifecycle()
     val selectedTabIndex = viewModel.selectedTabIndex.collectAsStateWithLifecycle()
 
@@ -78,77 +76,49 @@ fun HostDashboardScreen(
         animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
     )
     val isFinishButtonEnabled = pollStatusUiState.value is UiState.Success
-            && finishPollUiState.value !is UiState.Loading
     val tabs = listOf("미참여", "참여")
+    val openShareIntent: (title: String, content: String) -> Unit = { title, content ->
+        val sendIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, content)
+            type = "text/plain"
+        }
+        val shareIntent = Intent.createChooser(sendIntent, title)
+        context.startActivity(shareIntent)
+    }
 
     val handleNavigateBack: () -> Unit = { navController.popBackStack() }
     val handleOpenDialog: () -> Unit = { viewModel.setDialogState(true) }
     val handleDismiss: () -> Unit = { viewModel.setDialogState(false)}
     val handleTabChange: (index: Int) -> Unit = { viewModel.setSelectedTabIndex(it) }
+    val handleRefresh: () -> Unit = { viewModel.loadPollStatus(id) }
     val handleFinish: () -> Unit = {
         viewModel.setDialogState(false)
-        viewModel.finishPoll()
-    }
-    val handleRefresh: () -> Unit = {
-        viewModel.loadPollStatus(id)
+        navController.navigate(Route.PollFinishScreen(id = id))
     }
     val handleShare: () -> Unit = {
-        val deepLink = "consensus://poll/$id"
-        val shareMessage = """
+        val content = """
             [Consensus 투표 초대]
             투표에 참여해주세요!
             
             👇 아래 링크를 눌러 앱에서 바로 투표하세요:
-            $deepLink
+            consensus://poll/$id
         """.trimIndent()
-
-        val sendIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, shareMessage)
-            type = "text/plain"
-        }
-        val shareIntent = Intent.createChooser(sendIntent, "투표 공유")
-        context.startActivity(shareIntent)
+        val title = "투표 공유"
+        openShareIntent(title, content)
     }
-    val handleShareCode: (code: String, title: String) -> Unit = { code, title ->
-        // 공유할 메시지 생성
-        val deepLink = "consensus://poll/$id"
-        val shareMessage = """
+    val handleShareCode: (code: String, pollTitle: String) -> Unit = { code, pollTitle ->
+        val content = """
             [Consensus 투표 초대]
-            '$title' 투표에 참여해주세요!
+            '$pollTitle' 투표에 참여해주세요!
             
             🔑 참여 코드: $code
             
             👇 아래 링크를 눌러 앱에서 바로 투표하세요:
-            $deepLink
+            consensus://poll/$id
         """.trimIndent()
-
-        // 안드로이드 공유 시트 실행
-        val sendIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, shareMessage)
-            type = "text/plain"
-        }
-        val shareIntent = Intent.createChooser(sendIntent, "투표 코드 공유")
-        context.startActivity(shareIntent)
-    }
-
-    LaunchedEffect(key1 = finishPollUiState.value) {
-        when (val finishPollState = finishPollUiState.value) {
-            is UiState.Success -> {
-                navController.navigate(Route.ResultScreen(id)) {
-                    popUpTo(Route.HostDashboardScreen) { inclusive = true }
-                }
-            }
-            is UiState.Failure -> {
-                snackbarHostState.showSnackbar(
-                    message = finishPollState.message,
-                    duration = SnackbarDuration.Short
-                )
-                viewModel.resetFinishPollUiState()
-            }
-            else -> {}
-        }
+        val title = "투표 코드 공유"
+        openShareIntent(title, content)
     }
 
     Scaffold(
@@ -322,20 +292,7 @@ fun HostDashboardScreen(
                         contentPadding = ButtonDefaults.MediumContentPadding,
                         modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(16.dp)
                     ) {
-                        if (finishPollUiState.value is UiState.Loading) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                CircularWavyProgressIndicator(modifier = Modifier.size(ButtonDefaults.MediumIconSize))
-                                Text(
-                                    text = finishStatusMessage.value,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                        } else {
-                            Text(text = "마감하기")
-                        }
+                        Text(text = "마감하기")
                     }
                 }
             }
