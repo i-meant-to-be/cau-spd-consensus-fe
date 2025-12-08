@@ -100,7 +100,7 @@ class PollFinishViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.Default) {
             try {
-                // 2-1. Check whether votes are empty
+                // 1. 투표 유무 확인
                 if (encryptedVotes.isEmpty()) {
                     withContext(Dispatchers.Main) {
                         _statusMessage.value = "투표자가 없습니다."
@@ -109,69 +109,67 @@ class PollFinishViewModel @Inject constructor(
                     return@launch
                 }
 
-                // 3. Decode given list
+                // 2. 디코딩
                 _statusMessage.value = "투표 집계 준비 중..."
                 val decodedEncryptedVotes = encryptedVotes.map { Base64.decode(it, Base64.NO_WRAP) }
 
-                // 4. Get encrypted SK and IV from PollInfoItemsRepo
-                pollInfoItemsRepo.getPollInfo(id).fold(
-                    onSuccess = { pollInfo ->
-                        // 5. Decrypt SK with CryptoManager
-                        val decryptedSk = cryptoManager.decrypt(
-                            ciphertext = pollInfo.encryptedSk.toByteArray(),
-                            iv = pollInfo.iv.toByteArray()
-                        )
+                // 3. PollInfo 조회 (실패 시 예외 발생시켜 catch 블록으로 이동)
+                val pollInfoResult = pollInfoItemsRepo.getPollInfo(id)
+                if (pollInfoResult.isFailure) throw Exception("Poll info not found") // Guard Clause
+                val pollInfo = pollInfoResult.getOrThrow()
 
-                        // 6. Sum all encoded and encrypted list with SEAL
-                        _statusMessage.value = "암호화된 투표 값 합산 중..."
-                        var sum = decodedEncryptedVotes.first()
-
-                        for (i in 1 until decodedEncryptedVotes.size) {
-                            val addValue = NativeLib.addCiphertexts(sum, decodedEncryptedVotes[i])
-                            if (addValue == null) {
-                                _submitPollResultUiState.value = UiState.Failure("Failed to add votes")
-                                return@launch
-                            }
-                            sum = addValue
-                        }
-
-                        // 7. Decrypt sum with SEAL
-                        _statusMessage.value = "결과 복호화 중..."
-                        val decryptedSum = NativeLib.decrypt(cipherBytes = sum, secretKeyBytes = decryptedSk)
-                        if (decryptedSum == null) {
-                            _submitPollResultUiState.value = UiState.Failure("Failed to decrypt sum")
-                            return@launch
-                        }
-                        val payload = decryptedSum.map { it.toInt() }
-
-                        // 8. Send result to server
-                        val submitPollResultRequest = pollRepo.submitPollResult(id = id, votes = payload)
-                        withContext(Dispatchers.Main) {
-                            submitPollResultRequest.fold(
-                                onSuccess = { responseBody ->
-                                    // 9. Delete poll from PollInfoItemsRepo
-                                    val removeRequest = pollInfoItemsRepo.removePollInfo(id)
-                                    if (removeRequest.isFailure) {
-                                        Log.w("PollFinishViewModel", "Failed to remove poll info from repo")
-                                    }
-
-                                    // 10. Move to result screen
-                                    _submitPollResultUiState.value = UiState.Success(responseBody)
-                                    _statusMessage.value = "투표 마감 완료!"
-                                },
-                                onFailure = {
-                                    _submitPollResultUiState.value = UiState.Failure(it.message ?: "Unknown error")
-                                }
-                            )
-                        }
-                    },
-                    onFailure = {
-                        _submitPollResultUiState.value = UiState.Failure(it.message ?: "Unknown error")
-                        return@launch
-                    }
+                // 4. SK 복호화
+                val decryptedSk = cryptoManager.decrypt(
+                    ciphertext = pollInfo.encryptedSk.toByteArray(),
+                    iv = pollInfo.iv.toByteArray()
                 )
+
+                // 5. 합산 (SEAL)
+                _statusMessage.value = "암호화된 투표 값 합산 중..."
+                var sum = decodedEncryptedVotes.first()
+                for (i in 1 until decodedEncryptedVotes.size) {
+                    sum = NativeLib.addCiphertexts(sum, decodedEncryptedVotes[i])
+                        ?: throw Exception("Failed to add votes")
+                }
+
+                // 6. 결과 복호화 (SEAL)
+                _statusMessage.value = "결과 복호화 중..."
+                val decryptedSum = NativeLib.decrypt(cipherBytes = sum, secretKeyBytes = decryptedSk)
+                    ?: throw Exception("Failed to decrypt sum")
+
+                val rawArray = decryptedSum.map { it.toInt() }
+
+                // 7. 후보자 수 조회
+                val getPollResult = pollRepo.getPoll(id = id)
+                if (getPollResult.isFailure) throw Exception("Failed to fetch poll details")
+                val candidateSize = getPollResult.getOrThrow().candidates.size
+
+                // 8. 데이터 자르기
+                val payload = rawArray.take(candidateSize)
+
+                // 9. 서버 전송
+                _statusMessage.value = "최종 결과 서버 전송 중..."
+                val submitResult = pollRepo.submitPollResult(id = id, votes = payload)
+
+                withContext(Dispatchers.Main) {
+                    submitResult.fold(
+                        onSuccess = { responseBody ->
+                            // 10. 로컬 데이터 삭제 및 이동
+                            pollInfoItemsRepo.removePollInfo(id)
+                            _submitPollResultUiState.value = UiState.Success(responseBody)
+                            _statusMessage.value = "투표 마감 완료!"
+                        },
+                        onFailure = {
+                            throw Exception(it.message)
+                        }
+                    )
+                }
+
             } catch (e: Exception) {
-                _submitPollResultUiState.value = UiState.Failure(e.message ?: "Unknown error")
+                // 모든 에러는 여기서 한 번에 처리
+                withContext(Dispatchers.Main) {
+                    _submitPollResultUiState.value = UiState.Failure(e.message ?: "Unknown error")
+                }
             }
         }
     }
