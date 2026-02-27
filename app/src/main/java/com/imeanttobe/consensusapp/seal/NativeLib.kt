@@ -46,4 +46,38 @@ object NativeLib {
      * @return 합산된 암호문 (ByteArray?)
      */
     external fun addCiphertexts(cipherBytes1: ByteArray, cipherBytes2: ByteArray): ByteArray?
+
+    /**
+     * 두 개의 암호문을 동형암호 곱셈합니다.
+     * @param cipherBytes1 첫 번째 암호문
+     * @param cipherBytes2 두 번째 암호문
+     * @param relinKeyBytes 재선형화 키
+     * @return 곱셈된 암호문 (ByteArray?)
+     */
+    external fun multiplyCiphertexts(
+        cipherBytes1: ByteArray,
+        cipherBytes2: ByteArray,
+        relinKeyBytes: ByteArray
+    ): ByteArray?
+
+    // 벤치마킹 함수
+    /**
+     * 사전 데이터 로딩 함수 (사전 생성 암호문과 재선형화에 쓸 키)
+     * @param ct1Bytes 사전 데이터 암호문 1
+     * @param ct2Bytes 사전 데이터 암호문 2
+     * @param rkBytes 재선형화에 쓸 키
+     * @return 성공 여부 (Boolean)
+     */
+    external fun loadBenchmarkData(
+        ct1Bytes: ByteArray,
+        ct2Bytes: ByteArray,
+        rkBytes: ByteArray
+    ): Boolean
+
+    /**
+     * 순수 곱셈 연산 벤치마크 함수
+     * @param iterations 반복 횟수
+     * @return 곱셈 연산에 걸린 시간 (long)
+     */
+    external fun runBenchmarkMultiply(iterations: Int): Long
 }
