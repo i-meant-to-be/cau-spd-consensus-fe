@@ -3,6 +3,10 @@
 
 // Prefix: Java_com_imeanttobe_consensusapp_seal_NativeLib_
 
+extern std::unique_ptr<seal::SEALContext> g_context;
+extern std::unique_ptr<seal::Evaluator> g_evaluator;
+extern std::unique_ptr<seal::BatchEncoder> g_encoder;
+
 // Test function
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_stringFromJNI(JNIEnv *env, jobject);
@@ -26,3 +30,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_decrypt(JNIEnv *env, jobject, jb
 // Adds two ciphertexts.
 extern "C" JNIEXPORT jbyteArray JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_addCiphertexts(JNIEnv* env, jobject, jbyteArray cipherBytes1, jbyteArray cipherBytes2);
+
+// Multiply two ciphertexts.
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_imeanttobe_consensusapp_seal_NativeLib_multiplyCiphertexts(JNIEnv* env, jobject, jbyteArray cipherBytes1, jbyteArray cipherBytes2, jbyteArray relinKeyBytes);

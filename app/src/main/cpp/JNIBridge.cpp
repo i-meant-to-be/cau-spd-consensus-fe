@@ -1,3 +1,6 @@
+#ifndef JNIBRIDGE_H
+#define JNIBRIDGE_H
+
 // Headers
 #include <jni.h>
 #include <string>
@@ -8,19 +11,18 @@
 #include "seal/seal.h"
 #include "JNIBridge.h"
 
-// Prefix: Java_com_imeanttobe_consensusapp_seal_NativeLib_
-
 // Namespaces
 using namespace std;
 using namespace seal;
 
 // Unique pointers
-static unique_ptr<SEALContext>  g_context;
-static unique_ptr<Evaluator>    g_evaluator;
-static unique_ptr<BatchEncoder> g_encoder;
+unique_ptr<SEALContext>  g_context;
+unique_ptr<Evaluator>    g_evaluator;
+unique_ptr<BatchEncoder> g_encoder;
 
 // Constants
 static const string PATH_SEAL_KEYS_CLASS = "com/imeanttobe/consensusapp/seal/SealKeys";
+static const int POLY_MODULUS_DEGREE = 8096;
 
 // JNI Functions
 // - Sample function
@@ -42,7 +44,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_initContext(JNIEnv *env, jobject
 
         // Set params for BFV scheme
         EncryptionParameters params(scheme_type::bfv);
-        size_t poly_modulus_degree = 4096;
+        size_t poly_modulus_degree = POLY_MODULUS_DEGREE;
         params.set_poly_modulus_degree(poly_modulus_degree);
         params.set_coeff_modulus(CoeffModulus::BFVDefault(poly_modulus_degree));
         params.set_plain_modulus(PlainModulus::Batching(poly_modulus_degree, 20));
@@ -78,10 +80,12 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobjec
         // Generate key generator
         KeyGenerator keygen(*g_context);
 
-        // Create SK, PK
+        // Create SK, PK, RK
         SecretKey secret_key = keygen.secret_key();
         PublicKey public_key;
+        RelinKeys relin_key;
         keygen.create_public_key(public_key);
+        keygen.create_relin_keys(relin_key);
 
         // Serialize pk
         stringstream pk_stream;
@@ -101,6 +105,15 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobjec
         jbyteArray sk_bytes = env->NewByteArray(static_cast<jsize>(serialized_sk.size()));
         env->SetByteArrayRegion(sk_bytes, 0, static_cast<jsize>(serialized_sk.size()), reinterpret_cast<const jbyte*>(serialized_sk.c_str()));
 
+        // Serialize rk
+        stringstream rk_stream;
+        relin_key.save(rk_stream);
+        string serialized_rk = rk_stream.str();
+
+        // Convert rk to jbyteArray
+        jbyteArray rk_bytes = env->NewByteArray(static_cast<jsize>(serialized_rk.size()));
+        env->SetByteArrayRegion(rk_bytes, 0, static_cast<jsize>(serialized_rk.size()), reinterpret_cast<const jbyte*>(serialized_rk.c_str()));
+
         // Find SealKeys class
         jclass seal_keys_class = env->FindClass(PATH_SEAL_KEYS_CLASS.c_str());
         if (seal_keys_class == nullptr) {
@@ -109,14 +122,14 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_generateKeys(JNIEnv *env, jobjec
         }
 
         // Find constructor
-        jmethodID constructor = env->GetMethodID(seal_keys_class, "<init>", "([B[B)V");
+        jmethodID constructor = env->GetMethodID(seal_keys_class, "<init>", "([B[B[B)V");
         if (constructor == nullptr) {
             __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Failed to find constructor.");
             return nullptr;
         }
 
         // Create Java object
-        jobject seal_keys = env->NewObject(seal_keys_class, constructor, pk_bytes, sk_bytes);
+        jobject seal_keys = env->NewObject(seal_keys_class, constructor, pk_bytes, sk_bytes, rk_bytes);
 
         return seal_keys;
     } catch (const exception &e) {
@@ -338,3 +351,87 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_addCiphertexts(
         return nullptr;
     }
 }
+
+
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_imeanttobe_consensusapp_seal_NativeLib_multiplyCiphertexts(
+        JNIEnv* env,
+        jobject,
+        jbyteArray cipherBytes1,
+        jbyteArray cipherBytes2,
+        jbyteArray relinKeyBytes) {
+    // Check whether context is initialized
+    if (!g_context || !g_evaluator) {
+        return nullptr;
+    }
+
+    // Check whether input byte arrays are valid
+    if (cipherBytes1 == nullptr || cipherBytes2 == nullptr) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input ciphertext byte arrays are null.");
+        return nullptr;
+    }
+    if (relinKeyBytes == nullptr) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Input relin key byte array is null.");
+        return nullptr;
+    }
+
+    auto deserialize_ciphertext = [&](jbyteArray cipherBytes, Ciphertext& ct) {
+        // JNI ByteArray -> Ciphertext 역직렬화
+        jsize len = env->GetArrayLength(cipherBytes);
+        jbyte* ptr = env->GetByteArrayElements(cipherBytes, nullptr);
+        string serialized_data(reinterpret_cast<char*>(ptr), len);
+        env->ReleaseByteArrayElements(cipherBytes, ptr, JNI_ABORT);
+
+        // 결과 Ciphertext에 로드
+        stringstream stream(serialized_data);
+        ct.load(*g_context, stream);
+    };
+
+    auto deserialize_relin_key = [&](jbyteArray relinKeyBytes, RelinKeys& rk) {
+        // JNI ByteArray -> Ciphertext 역직렬화
+        jsize len = env->GetArrayLength(relinKeyBytes);
+        jbyte* ptr = env->GetByteArrayElements(relinKeyBytes, nullptr);
+        string serialized_data(reinterpret_cast<char*>(ptr), len);
+        env->ReleaseByteArrayElements(relinKeyBytes, ptr, JNI_ABORT);
+
+        // 결과 Ciphertext에 로드
+        stringstream stream(serialized_data);
+        rk.load(*g_context, stream);
+    };
+
+    try {
+        // --- 1. JNI ByteArray -> Ciphertext 역직렬화
+        Ciphertext encrypted1;
+        deserialize_ciphertext(cipherBytes1, encrypted1);
+
+        Ciphertext encrypted2;
+        deserialize_ciphertext(cipherBytes2, encrypted2);
+
+        RelinKeys relin_key;
+        deserialize_relin_key(relinKeyBytes, relin_key);
+
+        // --- 2. 곱셈 연산 (Ciphertext * Ciphertext) ---
+        Ciphertext encrypted_result;
+        g_evaluator->multiply(encrypted1, encrypted2, encrypted_result);
+        g_evaluator->relinearize_inplace(encrypted_result, relin_key);
+
+        // --- 3. 직렬화 (Ciphertext -> Byte Array) ---
+        stringstream result_stream;
+        encrypted_result.save(result_stream);
+        string serialized_result = result_stream.str();
+
+        jsize output_len = static_cast<jsize>(serialized_result.size());
+        jbyteArray result = env->NewByteArray(output_len);
+        env->SetByteArrayRegion(result, 0, output_len, reinterpret_cast<const jbyte*>(serialized_result.c_str()));
+
+        return result;
+    } catch (const exception& e) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Error in multiplyCiphertexts: %s", e.what());
+        return nullptr;
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL", "Unknown error in multiplyCiphertexts");
+        return nullptr;
+    }
+}
+
+#endif
