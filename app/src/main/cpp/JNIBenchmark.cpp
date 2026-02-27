@@ -31,18 +31,20 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_loadBenchmarkData(
         return JNI_FALSE;
     }
 
-    auto deserialize = [&](jbyteArray bytes, auto& obj) {
+    auto deserialize = [&](jbyteArray bytes, auto& obj) -> bool {
         jsize len = env->GetArrayLength(bytes);
         jbyte* ptr = env->GetByteArrayElements(bytes, nullptr);
         if (!ptr) {
             __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Failed to get Java byte array elements.");
-            return;
+            return false;
         }
 
         string data(reinterpret_cast<char*>(ptr), len);
         env->ReleaseByteArrayElements(bytes, ptr, JNI_ABORT); // 메모리 해제
         stringstream stream(data);
         obj.load(*g_context, stream);
+
+        return true;
     };
 
     try {
