@@ -41,7 +41,8 @@ add_subdirectory(SEAL)
 # .so (공유 라이브러리) 파일을 생성합니다.
 # (아직 jni_bridge.cpp 파일이 없으므로, 지금 바로 다음 단계에서 생성해야 합니다.)
 add_library(consensus_native SHARED
-        JNIBridge.cpp)
+        JNIBridge.cpp
+        JNIBenchmark.cpp)
 
 if(ANDROID)
     # NDK의 로깅 라이브러리를 찾습니다. (C++에서 Log.d(...) 사용 시 필요)
