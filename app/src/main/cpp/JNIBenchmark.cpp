@@ -81,7 +81,7 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_runBenchmarkMultiply(
     }
 
     // Set upper bound and lower bound for iterations
-    if (iterations <= 0 || iterations > 1000000) {
+    if (iterations <= 0 || iterations > MAX_ITERATIONS) {
         __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Invalid iteration count.");
         return -1;
     }
