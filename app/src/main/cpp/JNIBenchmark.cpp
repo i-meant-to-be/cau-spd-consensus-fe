@@ -1,6 +1,8 @@
 #include <jni.h>
 #include <chrono>
 #include <android/log.h>
+#include <thread>
+#include <vector>
 #include "seal/seal.h"
 #include "JNIBridge.h" // 공유할 g_context, g_evaluator 가져오기
 
@@ -97,6 +99,60 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_runBenchmarkMultiply(
     auto end_time = chrono::high_resolution_clock::now();
 
     // 밀리초(ms) 단위로 변환
+    auto duration_ms = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
+
+    return static_cast<jlong>(duration_ms);
+}
+
+// 3. 네이티브 단 직접 병렬 처리 벤치마크 (C++ std::thread 사용)
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_imeanttobe_consensusapp_seal_NativeLib_runNativeBenchmarkMultiply(
+        JNIEnv *env,
+        jobject,
+        jint totalIterations,
+        jint threadCount) {
+    // Null check
+    if (!g_bench_ready || !g_context || !g_evaluator) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Benchmark data not ready.");
+        return -1;
+    }
+
+    // Check thread count's validity
+    if (threadCount <= 0) threadCount = 1;
+
+    // --- 시간 측정 시작 (스레드 생성 시간까지 포함하여 현실적인 성능 측정) ---
+    auto start_time = chrono::high_resolution_clock::now();
+
+    // 스레드들이 각자 실행할 Worker 람다 함수
+    auto worker = [](int iters) {
+        Ciphertext local_result; // 각 스레드만의 독립적인 결과 저장소 (Thread-safe 핵심)
+        for (int i = 0; i < iters; i++) {
+            g_evaluator->multiply(g_bench_ct1, g_bench_ct2, local_result);
+            g_evaluator->relinearize_inplace(local_result, g_bench_relin_keys);
+        }
+    };
+
+    vector<thread> threads;
+    int chunk = totalIterations / threadCount;
+    int remainder = totalIterations % threadCount;
+
+    // 지정된 개수만큼 스레드 생성 및 실행
+    for (int i = 0; i < threadCount; i++) {
+        int iters = (i == threadCount - 1) ? (chunk + remainder) : chunk;
+        if (iters > 0) {
+            threads.emplace_back(worker, iters);
+        }
+    }
+
+    // 모든 네이티브 스레드가 연산을 마칠 때까지 대기 (Join)
+    for (auto& t : threads) {
+        if (t.joinable()) {
+            t.join();
+        }
+    }
+
+    // --- 시간 측정 종료 ---
+    auto end_time = chrono::high_resolution_clock::now();
     auto duration_ms = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
 
     return static_cast<jlong>(duration_ms);
