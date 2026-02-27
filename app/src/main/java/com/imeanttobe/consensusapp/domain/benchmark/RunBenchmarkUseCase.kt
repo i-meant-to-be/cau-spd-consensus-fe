@@ -4,16 +4,19 @@ import com.imeanttobe.consensusapp.seal.NativeLib
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import kotlin.system.measureTimeMillis
 
 class RunBenchmarkUseCase @Inject constructor() {
+    companion object {
+        private const val MAX_ITERATIONS = 1000000
+        private const val MAX_THREADS = 32
+    }
+
     /**
      * 벤치마크 실행.
      * @param mode 벤치마크 모드 (Dispatchers.IO, Dispatchers.Default, Kotlin 스레드 풀, C++ 스레드)
@@ -26,44 +29,53 @@ class RunBenchmarkUseCase @Inject constructor() {
         totalIterations: Int,
         threadCount: Int
     ): Long {
+        // Validate parameters
+        if (totalIterations <= 0 || threadCount <= 0) {
+            throw IllegalArgumentException("Invalid iteration count")
+        }
+        val validTotalIterations = totalIterations.coerceAtMost(MAX_ITERATIONS)
+        val validThreadCount = threadCount.coerceAtMost(MAX_THREADS)
+
         // Prepare parallel processing environments
         val dispatcher = when (mode) {
             BenchmarkMode.KOTLIN_DEFAULT -> Dispatchers.Default
             BenchmarkMode.KOTLIN_IO -> Dispatchers.IO
-            BenchmarkMode.KOTLIN_CUSTOM_POOL -> Executors.newFixedThreadPool(threadCount).asCoroutineDispatcher()
+            BenchmarkMode.KOTLIN_CUSTOM_POOL -> Executors.newFixedThreadPool(validThreadCount).asCoroutineDispatcher()
             BenchmarkMode.CPP_NATIVE_THREAD -> {
                 return NativeLib.runNativeBenchmarkMultiply(
-                    totalIterations = totalIterations,
-                    threadCount = threadCount
+                    totalIterations = validTotalIterations,
+                    threadCount = validThreadCount
                 )
             }
         }
 
         // Calculate iteration count for each thread
-        val chunk = totalIterations / threadCount
-        val remainder = totalIterations % threadCount
+        val chunk = validTotalIterations / validThreadCount
+        val remainder = validTotalIterations % validThreadCount
 
         // Run benchmark
-        return withContext(dispatcher) {
-            val timeTaken = measureTimeMillis {
-                val deferreds = (0 until threadCount).map { i ->
-                    async {
-                        val iterations = if (i == threadCount - 1) chunk + remainder else chunk
+        return try {
+            withContext(dispatcher) {
+                val timeTaken = measureTimeMillis {
+                    val deferreds = (0 until validThreadCount).map { i ->
+                        async {
+                            val iterations = if (i == validThreadCount - 1) chunk + remainder else chunk
 
-                        if (iterations > 0) {
-                            NativeLib.runBenchmarkMultiply(iterations)
+                            if (iterations > 0) {
+                                NativeLib.runBenchmarkMultiply(iterations)
+                            }
                         }
                     }
+
+                    deferreds.awaitAll()
                 }
 
-                deferreds.awaitAll()
+                timeTaken
             }
-
+        } finally {
             if (mode == BenchmarkMode.KOTLIN_CUSTOM_POOL) {
                 (dispatcher as? ExecutorCoroutineDispatcher)?.close()
             }
-
-            timeTaken
         }
     }
 }

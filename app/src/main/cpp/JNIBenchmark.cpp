@@ -15,6 +15,9 @@ static Ciphertext g_bench_ct2;
 static RelinKeys  g_bench_relin_keys;
 static bool       g_bench_ready = false;
 
+static const int MAX_ITERATIONS = 1000000;
+static const int MAX_THREADS = 32;
+
 // 1. 사전 데이터 로드 (실험 시작 전 1회만 호출)
 extern "C" JNIEXPORT jboolean JNICALL
 Java_com_imeanttobe_consensusapp_seal_NativeLib_loadBenchmarkData(
@@ -117,8 +120,17 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_runNativeBenchmarkMultiply(
         return -1;
     }
 
-    // Check thread count's validity
-    if (threadCount <= 0) threadCount = 1;
+    // Params check
+    if (totalIterations <= 0 || totalIterations > MAX_ITERATIONS) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Invalid iteration count.");
+        return -1;
+    }
+    if (threadCount <= 0) {
+        threadCount = 1;
+    }
+    if (threadCount > MAX_THREADS) {
+        threadCount = MAX_THREADS;
+    }
 
     // --- 시간 측정 시작 (스레드 생성 시간까지 포함하여 현실적인 성능 측정) ---
     auto start_time = chrono::high_resolution_clock::now();
