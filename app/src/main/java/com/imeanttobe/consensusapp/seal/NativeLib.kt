@@ -80,4 +80,12 @@ object NativeLib {
      * @return 곱셈 연산에 걸린 시간 (long)
      */
     external fun runBenchmarkMultiply(iterations: Int): Long
+
+    /**
+     * C++ 네이티브 단에서 직접 스레드를 생성하여 병렬 곱셈 연산을 수행하는 벤치마크
+     * @param totalIterations 총 반복 횟수
+     * @param threadCount C++ 내부에서 생성할 네이티브 스레드 개수
+     * @return 총 소요 시간 (ms)
+     */
+    external fun runNativeBenchmarkMultiply(totalIterations: Int, threadCount: Int): Long
 }
