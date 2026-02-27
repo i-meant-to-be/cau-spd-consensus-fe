@@ -26,9 +26,19 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_loadBenchmarkData(
         return JNI_FALSE;
     }
 
+    if (!ct1Bytes || !ct2Bytes || !rkBytes) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Invalid input byte array.");
+        return JNI_FALSE;
+    }
+
     auto deserialize = [&](jbyteArray bytes, auto& obj) {
         jsize len = env->GetArrayLength(bytes);
         jbyte* ptr = env->GetByteArrayElements(bytes, nullptr);
+        if (!ptr) {
+            __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Failed to get Java byte array elements.");
+            return;
+        }
+
         string data(reinterpret_cast<char*>(ptr), len);
         env->ReleaseByteArrayElements(bytes, ptr, JNI_ABORT); // 메모리 해제
         stringstream stream(data);
@@ -42,6 +52,9 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_loadBenchmarkData(
         g_bench_ready = true;
         __android_log_print(ANDROID_LOG_INFO, "SEAL_BENCH", "Benchmark data loaded successfully.");
         return JNI_TRUE;
+    } catch (const exception& e) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Error in loadBenchmarkData: %s", e.what());
+        return JNI_FALSE;
     } catch (...) {
         __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Failed to load benchmark data.");
         return JNI_FALSE;
@@ -54,8 +67,15 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_runBenchmarkMultiply(
         JNIEnv *env,
         jobject,
         jint iterations) {
+    // Null check for params
     if (!g_bench_ready || !g_context || !g_evaluator) {
         __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Benchmark data not ready.");
+        return -1;
+    }
+
+    // Set upper bound and lower bound for iterations
+    if (iterations <= 0 || iterations > 1000000) {
+        __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Invalid iteration count.");
         return -1;
     }
 

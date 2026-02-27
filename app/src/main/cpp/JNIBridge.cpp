@@ -1,14 +1,9 @@
-#ifndef JNIBRIDGE_H
-#define JNIBRIDGE_H
-
 // Headers
 #include <jni.h>
 #include <string>
 #include <vector>
 #include <sstream>
 #include <android/log.h>
-
-#include "seal/seal.h"
 #include "JNIBridge.h"
 
 // Namespaces
@@ -22,7 +17,7 @@ unique_ptr<BatchEncoder> g_encoder;
 
 // Constants
 static const string PATH_SEAL_KEYS_CLASS = "com/imeanttobe/consensusapp/seal/SealKeys";
-static const int POLY_MODULUS_DEGREE = 8096;
+static const int POLY_MODULUS_DEGREE = 8192;
 
 // JNI Functions
 // - Sample function
@@ -375,40 +370,28 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_multiplyCiphertexts(
         return nullptr;
     }
 
-    auto deserialize_ciphertext = [&](jbyteArray cipherBytes, Ciphertext& ct) {
-        // JNI ByteArray -> Ciphertext 역직렬화
-        jsize len = env->GetArrayLength(cipherBytes);
-        jbyte* ptr = env->GetByteArrayElements(cipherBytes, nullptr);
+    auto deserialize = [&](jbyteArray bytes, auto& obj) {
+        // JNI ByteArray -> SEAL object 역직렬화
+        jsize len = env->GetArrayLength(bytes);
+        jbyte* ptr = env->GetByteArrayElements(bytes, nullptr);
         string serialized_data(reinterpret_cast<char*>(ptr), len);
-        env->ReleaseByteArrayElements(cipherBytes, ptr, JNI_ABORT);
+        env->ReleaseByteArrayElements(bytes, ptr, JNI_ABORT);
 
-        // 결과 Ciphertext에 로드
+        // 결과 객체에 로드
         stringstream stream(serialized_data);
-        ct.load(*g_context, stream);
-    };
-
-    auto deserialize_relin_key = [&](jbyteArray relinKeyBytes, RelinKeys& rk) {
-        // JNI ByteArray -> Ciphertext 역직렬화
-        jsize len = env->GetArrayLength(relinKeyBytes);
-        jbyte* ptr = env->GetByteArrayElements(relinKeyBytes, nullptr);
-        string serialized_data(reinterpret_cast<char*>(ptr), len);
-        env->ReleaseByteArrayElements(relinKeyBytes, ptr, JNI_ABORT);
-
-        // 결과 Ciphertext에 로드
-        stringstream stream(serialized_data);
-        rk.load(*g_context, stream);
+        obj.load(*g_context, stream);
     };
 
     try {
         // --- 1. JNI ByteArray -> Ciphertext 역직렬화
         Ciphertext encrypted1;
-        deserialize_ciphertext(cipherBytes1, encrypted1);
+        deserialize(cipherBytes1, encrypted1);
 
         Ciphertext encrypted2;
-        deserialize_ciphertext(cipherBytes2, encrypted2);
+        deserialize(cipherBytes2, encrypted2);
 
         RelinKeys relin_key;
-        deserialize_relin_key(relinKeyBytes, relin_key);
+        deserialize(relinKeyBytes, relin_key);
 
         // --- 2. 곱셈 연산 (Ciphertext * Ciphertext) ---
         Ciphertext encrypted_result;
@@ -433,5 +416,3 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_multiplyCiphertexts(
         return nullptr;
     }
 }
-
-#endif

@@ -76,7 +76,7 @@ object NativeLib {
 
     /**
      * 순수 곱셈 연산 벤치마크 함수
-     * @params iterations 반복 횟수
+     * @param iterations 반복 횟수
      * @return 곱셈 연산에 걸린 시간 (long)
      */
     external fun runBenchmarkMultiply(iterations: Int): Long

@@ -1,5 +1,7 @@
 #pragma once
 #include <jni.h>
+#include <memory>
+#include "seal/seal.h"
 
 // Prefix: Java_com_imeanttobe_consensusapp_seal_NativeLib_
 
