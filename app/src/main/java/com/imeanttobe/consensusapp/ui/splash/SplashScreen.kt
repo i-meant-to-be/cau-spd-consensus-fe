@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.imeanttobe.consensusapp.BuildConfig
 import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.core.findActivity
 import com.imeanttobe.consensusapp.navigation.Route
@@ -58,6 +59,13 @@ fun SplashScreen(
 
     LaunchedEffect(key1 = splashState.value) {
         if (splashState.value is UiState.Success) {
+            if (BuildConfig.IS_BENCHMARK_ENABLED) {
+                navController.navigate(Route.BenchmarkScreen) {
+                    popUpTo<Route.SplashScreen> { inclusive = true }
+                }
+                return@LaunchedEffect
+            }
+
             val pollId = viewModel.pendingPollId
             if (pollId != null) {
                 navController.navigate(Route.VoteScreen(id = pollId)) {

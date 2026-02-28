@@ -9,6 +9,7 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.imeanttobe.consensusapp.BuildConfig
 import com.imeanttobe.consensusapp.navigation.Route
+import com.imeanttobe.consensusapp.ui.benchmark.BenchmarkScreen
 import com.imeanttobe.consensusapp.ui.create_poll.CreatePollScreen
 import com.imeanttobe.consensusapp.ui.dev.DevScreen
 import com.imeanttobe.consensusapp.ui.home.HomeScreen
@@ -70,6 +71,10 @@ fun ConsensusNavGraph(
         composable<Route.PollFinishScreen> { backStackEntry ->
             val route: Route.PollFinishScreen = backStackEntry.toRoute()
             PollFinishScreen(id = route.id, navController = navController)
+        }
+
+        composable<Route.BenchmarkScreen> {
+            BenchmarkScreen()
         }
     }
 }
