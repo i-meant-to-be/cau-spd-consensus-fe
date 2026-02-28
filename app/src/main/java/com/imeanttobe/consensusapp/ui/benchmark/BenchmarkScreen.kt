@@ -49,10 +49,10 @@ fun BenchmarkScreen(viewModel: BenchmarkViewModel = hiltViewModel()) {
         viewModel.setBenchmarkMode(mode)
     }
     val handleTotalIterationsChange = { iterations: String ->
-        viewModel.setTotalIterations(iterations.filter { it.isDigit() })
+        viewModel.setTotalIterations(iterations)
     }
     val handleThreadCountChange = { count: String ->
-        viewModel.setThreadCount(count.filter { it.isDigit() })
+        viewModel.setThreadCount(count)
     }
 
     val resultText = when (val state = benchmarkState.value) {

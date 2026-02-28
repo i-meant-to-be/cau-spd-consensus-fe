@@ -10,6 +10,7 @@ import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.domain.repo.IdRepo
 import com.imeanttobe.consensusapp.seal.NativeLib
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -78,6 +79,8 @@ class SplashViewModel @Inject constructor(
 
                             _splashState.value = UiState.Success(Unit)
                             _loadingMessage.value = "준비 완료!"
+                        } catch (e: CancellationException) {
+                            throw e
                         } catch (e: Exception) {
                             _splashState.value = UiState.Failure(e.message ?: "알 수 없는 오류")
                             _loadingMessage.value = "오류 발생"
@@ -90,6 +93,8 @@ class SplashViewModel @Inject constructor(
                     _loadingMessage.value = "오류 발생"
                     _splashState.value = UiState.Failure(idResult.exceptionOrNull()?.message ?: "알 수 없는 오류")
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _loadingMessage.value = "오류 발생"
                 _splashState.value = UiState.Failure(e.message ?: "알 수 없는 오류")
