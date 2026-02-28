@@ -42,10 +42,12 @@ class RunBenchmarkUseCase @Inject constructor() {
             BenchmarkMode.KOTLIN_IO -> Dispatchers.IO
             BenchmarkMode.KOTLIN_CUSTOM_POOL -> Executors.newFixedThreadPool(validThreadCount).asCoroutineDispatcher()
             BenchmarkMode.CPP_NATIVE_THREAD -> {
-                return NativeLib.runNativeBenchmarkMultiply(
-                    totalIterations = validTotalIterations,
-                    threadCount = validThreadCount
-                )
+                return withContext(Dispatchers.Default) {
+                    NativeLib.runNativeBenchmarkMultiply(
+                        totalIterations = validTotalIterations,
+                        threadCount = validThreadCount
+                    )
+                }
             }
         }
 
