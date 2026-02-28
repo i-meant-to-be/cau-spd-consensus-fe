@@ -55,15 +55,18 @@ fun BenchmarkScreen(viewModel: BenchmarkViewModel = hiltViewModel()) {
         viewModel.setThreadCount(count.filter { it.isDigit() })
     }
 
-    val resultText = if (benchmarkState.value is UiState.Success) {
-        "${(benchmarkState.value as UiState.Success<Long>).data} ms"
-    } else {
-        benchmarkState.value.toString()
+    val resultText = when (val state = benchmarkState.value) {
+        is UiState.Success -> "${state.data} ms"
+        is UiState.Failure -> "오류 발생: ${state.message}"
+        is UiState.Loading -> "로딩 중..."
+        else -> "대기 중"
     }
 
     Scaffold() { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding).padding(8.dp),
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(text = "Benchmark Mode")

@@ -57,16 +57,22 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_loadBenchmarkData(
         g_bench_ct2 = make_unique<Ciphertext>();
         g_bench_relin_keys = make_unique<RelinKeys>();
 
-        deserialize(ct1Bytes, *g_bench_ct1);
-        deserialize(ct2Bytes, *g_bench_ct2);
-        deserialize(rkBytes, *g_bench_relin_keys);
+        if (!deserialize(ct1Bytes, *g_bench_ct1) || !deserialize(ct2Bytes, *g_bench_ct2) || !deserialize(rkBytes, *g_bench_relin_keys)) {
+            g_bench_ct1.reset();
+            g_bench_ct2.reset();
+            g_bench_relin_keys.reset();
+            return JNI_FALSE;
+        }
+
         g_bench_ready = true;
         __android_log_print(ANDROID_LOG_INFO, "SEAL_BENCH", "Benchmark data loaded successfully.");
         return JNI_TRUE;
     } catch (const exception& e) {
+        g_bench_ready = false;
         __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Error in loadBenchmarkData: %s", e.what());
         return JNI_FALSE;
     } catch (...) {
+        g_bench_ready = false;
         __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Failed to load benchmark data.");
         return JNI_FALSE;
     }
