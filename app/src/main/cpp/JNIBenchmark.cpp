@@ -10,9 +10,9 @@ using namespace std;
 using namespace seal;
 
 // 벤치마크 전용 전역 데이터 (이 파일 내에서만 유지)
-static Ciphertext g_bench_ct1;
-static Ciphertext g_bench_ct2;
-static RelinKeys  g_bench_relin_keys;
+static unique_ptr<Ciphertext> g_bench_ct1;
+static unique_ptr<Ciphertext> g_bench_ct2;
+static unique_ptr<RelinKeys>  g_bench_relin_keys;
 static bool       g_bench_ready = false;
 
 static const int MAX_ITERATIONS = 1000000;
@@ -53,16 +53,26 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_loadBenchmarkData(
     };
 
     try {
-        deserialize(ct1Bytes, g_bench_ct1);
-        deserialize(ct2Bytes, g_bench_ct2);
-        deserialize(rkBytes, g_bench_relin_keys);
+        g_bench_ct1 = make_unique<Ciphertext>();
+        g_bench_ct2 = make_unique<Ciphertext>();
+        g_bench_relin_keys = make_unique<RelinKeys>();
+
+        if (!deserialize(ct1Bytes, *g_bench_ct1) || !deserialize(ct2Bytes, *g_bench_ct2) || !deserialize(rkBytes, *g_bench_relin_keys)) {
+            g_bench_ct1.reset();
+            g_bench_ct2.reset();
+            g_bench_relin_keys.reset();
+            return JNI_FALSE;
+        }
+
         g_bench_ready = true;
         __android_log_print(ANDROID_LOG_INFO, "SEAL_BENCH", "Benchmark data loaded successfully.");
         return JNI_TRUE;
     } catch (const exception& e) {
+        g_bench_ready = false;
         __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Error in loadBenchmarkData: %s", e.what());
         return JNI_FALSE;
     } catch (...) {
+        g_bench_ready = false;
         __android_log_print(ANDROID_LOG_ERROR, "SEAL_BENCH", "Failed to load benchmark data.");
         return JNI_FALSE;
     }
@@ -93,9 +103,9 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_runBenchmarkMultiply(
 
     for (int i = 0; i < iterations; i++) {
         // 곱셈 수행 (크기가 3으로 늘어남)
-        g_evaluator->multiply(g_bench_ct1, g_bench_ct2, result_ct);
+        g_evaluator->multiply(*g_bench_ct1, *g_bench_ct2, result_ct);
         // 재선형화 수행 (In-place 연산으로 불필요한 메모리 복사 최소화, 크기 2로 복구)
-        g_evaluator->relinearize_inplace(result_ct, g_bench_relin_keys);
+        g_evaluator->relinearize_inplace(result_ct, *g_bench_relin_keys);
     }
 
     // --- 시간 측정 종료 ---
@@ -139,8 +149,8 @@ Java_com_imeanttobe_consensusapp_seal_NativeLib_runNativeBenchmarkMultiply(
     auto worker = [](int iters) {
         Ciphertext local_result; // 각 스레드만의 독립적인 결과 저장소 (Thread-safe 핵심)
         for (int i = 0; i < iters; i++) {
-            g_evaluator->multiply(g_bench_ct1, g_bench_ct2, local_result);
-            g_evaluator->relinearize_inplace(local_result, g_bench_relin_keys);
+            g_evaluator->multiply(*g_bench_ct1, *g_bench_ct2, local_result);
+            g_evaluator->relinearize_inplace(local_result, *g_bench_relin_keys);
         }
     };
 

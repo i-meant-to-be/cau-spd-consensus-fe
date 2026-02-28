@@ -5,10 +5,12 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.imeanttobe.consensusapp.BuildConfig
 import com.imeanttobe.consensusapp.core.UiState
 import com.imeanttobe.consensusapp.domain.repo.IdRepo
 import com.imeanttobe.consensusapp.seal.NativeLib
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,15 +71,63 @@ class SplashViewModel @Inject constructor(
                 delay(800)
 
                 if (idResult.isSuccess) {
-                    _splashState.value = UiState.Success(Unit)
-                    _loadingMessage.value = "준비 완료!"
+                    if (BuildConfig.IS_BENCHMARK_ENABLED) {
+                        _loadingMessage.value = "벤치마킹 데이터를 준비하는 중..."
+
+                        try {
+                            initBenchmark()
+
+                            _splashState.value = UiState.Success(Unit)
+                            _loadingMessage.value = "준비 완료!"
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            _splashState.value = UiState.Failure(e.message ?: "알 수 없는 오류")
+                            _loadingMessage.value = "오류 발생"
+                        }
+                    } else {
+                        _splashState.value = UiState.Success(Unit)
+                        _loadingMessage.value = "준비 완료!"
+                    }
                 } else {
                     _loadingMessage.value = "오류 발생"
                     _splashState.value = UiState.Failure(idResult.exceptionOrNull()?.message ?: "알 수 없는 오류")
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _loadingMessage.value = "오류 발생"
                 _splashState.value = UiState.Failure(e.message ?: "알 수 없는 오류")
+            }
+        }
+    }
+
+    private suspend fun initBenchmark() {
+        withContext(Dispatchers.Default) {
+            // 2. 키 생성 (PK, SK, RK 획득)
+            val keys = NativeLib.generateKeys()
+            requireNotNull(keys) { "키 생성에 실패했습니다." }
+
+            // 3. 더미 데이터 암호화 (예: 길이가 1인 배열에 값 1과 2를 넣음)
+            // 실제 BFV 스킴에서는 배치 인코딩을 쓰므로 전체 벡터를 넣어도 됩니다.
+            val dummyInput1 = longArrayOf(1L)
+            val dummyInput2 = longArrayOf(2L)
+
+            val ct1Bytes = NativeLib.encrypt(dummyInput1, keys.pk)
+            val ct2Bytes = NativeLib.encrypt(dummyInput2, keys.pk)
+
+            requireNotNull(ct1Bytes) { "첫 번째 데이터 암호화 실패" }
+            requireNotNull(ct2Bytes) { "두 번째 데이터 암호화 실패" }
+
+            // 4. C++ 벤치마크 메모리에 적재 (이전에 만든 함수 호출)
+            val isLoaded = NativeLib.loadBenchmarkData(
+                ct1Bytes = ct1Bytes,
+                ct2Bytes = ct2Bytes,
+                rkBytes = keys.rk
+            )
+
+            if (!isLoaded) {
+                throw IllegalStateException("C++ 벤치마크 메모리에 적재 실패")
             }
         }
     }
